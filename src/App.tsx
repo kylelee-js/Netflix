@@ -1,19 +1,27 @@
 import React from "react";
 import styled from "styled-components";
-import "./App.css";
-
-const Circle = styled.div`
-  background-color: tomato;
-  height: 100px;
-  width: 100px;
-  border-radius: 15%;
-`;
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import Home from "./Routes/Home";
+import Search from "./Routes/Search";
+import TV from "./Routes/TV";
+import Header from "./Components/Header";
 
 function App() {
   return (
-    <div className="App">
-      <Circle>tomato</Circle>
-    </div>
+    <Router>
+      <Header />
+      <Switch>
+        <Route exact path={"/"}>
+          <Home />
+        </Route>
+        <Route exact path={"/tv"}>
+          <TV />
+        </Route>
+        <Route exact path={"/search"}>
+          <Search />
+        </Route>
+      </Switch>
+    </Router>
   );
 }
 
