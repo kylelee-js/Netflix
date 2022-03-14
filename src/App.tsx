@@ -11,15 +11,17 @@ function App() {
     <Router>
       <Header />
       <Switch>
-        <Route exact path={"/"}>
-          <Home />
-        </Route>
-        <Route exact path={"/tv"}>
-          <TV />
-        </Route>
-        <Route exact path={"/search"}>
-          <Search />
-        </Route>
+        <>
+          <Route path="/tv">
+            <TV />
+          </Route>
+          <Route path="/search">
+            <Search />
+          </Route>
+          <Route exact path={["/", "/movies/:movieId"]}>
+            <Home />
+          </Route>
+        </>
       </Switch>
     </Router>
   );

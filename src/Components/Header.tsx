@@ -5,9 +5,12 @@ import {
   useViewportScroll,
   useTransform,
 } from "framer-motion";
-import { useState } from "react";
-import { Link, useRouteMatch } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { Link, useHistory, useRouteMatch } from "react-router-dom";
+import { useRecoilState } from "recoil";
 import styled from "styled-components";
+import { searchOpenState } from "../atoms";
 
 const Nav = styled(motion.nav)`
   width: 100%;
@@ -17,6 +20,7 @@ const Nav = styled(motion.nav)`
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
+  background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0) 70.71%);
   background-color: black;
   padding: 20px 60px;
 `;
@@ -63,7 +67,7 @@ const Items = styled.ul`
   align-items: center;
 `;
 
-const Search = styled(motion.span)`
+const Search = styled(motion.form)`
   color: white;
   display: flex;
   margin-right: 110px;
@@ -109,9 +113,18 @@ const logoVariants: Variants = {
     },
   },
 };
+interface IForm {
+  keyword: string;
+}
 
 function Header() {
-  const [searchOpen, setSearchOpen] = useState(false);
+  const history = useHistory();
+  const { register, handleSubmit } = useForm<IForm>();
+  const onValid = (data: IForm) => {
+    history.push(`/search?keyword=${data.keyword}`);
+  };
+
+  const [searchOpen, setSearchOpen] = useRecoilState(searchOpenState);
   const inputAnimation = useAnimation();
   const { scrollY } = useViewportScroll();
   const backgroundColor = useTransform(
@@ -134,15 +147,24 @@ function Header() {
     setSearchOpen((prev) => !prev);
   };
 
+  useEffect(() => {
+    if (searchOpen) {
+      inputAnimation.start({
+        scaleX: 1,
+      });
+    } else {
+      inputAnimation.start({
+        scaleX: 0,
+      });
+    }
+  }, [searchOpen]);
+
   const homeMatch = useRouteMatch("/");
   const tvMatch = useRouteMatch("/tv");
   return (
     <Nav variants={navVariants} style={{ backgroundColor }}>
       <Col>
         <Logo
-          variants={logoVariants}
-          whileHover="active"
-          initial="initial"
           xmlns="http://www.w3.org/2000/svg"
           width="1024"
           height="276.742"
@@ -164,7 +186,7 @@ function Header() {
         </Items>
       </Col>
       <Col>
-        <Search>
+        <Search onSubmit={handleSubmit(onValid)}>
           <motion.svg
             fill="currentColor"
             viewBox="0 0 20 20"
@@ -172,6 +194,7 @@ function Header() {
             onClick={toggleSearchOpen}
             transition={{ type: "linear" }}
             animate={{ x: searchOpen ? -180 : 0 }}
+            style={{ cursor: "pointer" }}
           >
             <path
               fillRule="evenodd"
@@ -180,6 +203,7 @@ function Header() {
             ></path>
           </motion.svg>
           <Input
+            {...register("keyword", { required: true, minLength: 2 })}
             animate={inputAnimation}
             initial={{ scaleX: 0 }}
             transition={{ type: "linear" }}

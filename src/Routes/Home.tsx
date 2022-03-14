@@ -1,6 +1,9 @@
 import { useQuery } from "react-query";
+import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { fetchImage, fetchMovies, IfetchMovies } from "../api";
+import { searchOpenState } from "../atoms";
+import Slider from "../Components/Slider";
 
 const Wrapper = styled.div`
   background-color: black;
@@ -33,13 +36,23 @@ const Overview = styled.p`
   width: 50%;
 `;
 
+const SliderContainer = styled.div`
+  display: grid;
+
+  grid-template-rows: repeat(3, 350px);
+`;
+
+// ######### Components ##############################################################################################################
+
 function Home() {
   const { data, isLoading } = useQuery<IfetchMovies>(
     ["movies", "nowPlaying"],
-    fetchMovies
+    () => fetchMovies("now_playing")
   );
+  const [searchOpen, setSearchOpen] = useRecoilState(searchOpenState);
+
   return (
-    <Wrapper>
+    <Wrapper onClick={() => setSearchOpen(false)}>
       {isLoading ? (
         <Loader>Loading</Loader>
       ) : (
@@ -48,6 +61,13 @@ function Home() {
             <Title>{data?.results[0].title}</Title>{" "}
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
+          <SliderContainer>
+            <Slider option="now_playing" />
+
+            <Slider option="top_rated" />
+
+            <Slider option="upcoming" />
+          </SliderContainer>
         </>
       )}
     </Wrapper>
