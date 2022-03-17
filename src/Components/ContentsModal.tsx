@@ -59,16 +59,18 @@ const ModalOverview = styled.p`
 // ######### Variants ##############################################################################################################
 
 interface IContentsModal {
+  option: string;
   matchedMovie?: IMovie | "";
 }
 
-function ContentsModal({ matchedMovie }: IContentsModal) {
+function ContentsModal({ option, matchedMovie }: IContentsModal) {
   const history = useHistory();
   const onOverlayClick = () => {
     history.push("/");
   };
 
   const { scrollY } = useViewportScroll();
+  console.log("matchedMovie in Modal", matchedMovie);
 
   const modalMatch = useRouteMatch<{ movieId: string }>("/movies/:movieId");
   return (
@@ -80,8 +82,11 @@ function ContentsModal({ matchedMovie }: IContentsModal) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           />
-          <Modal scrollY={scrollY} layoutId={modalMatch.params.movieId}>
-            {matchedMovie && (
+          <Modal
+            scrollY={scrollY}
+            layoutId={option + modalMatch.params.movieId}
+          >
+            {matchedMovie ? (
               <>
                 <ModalCover
                   style={{
@@ -95,6 +100,8 @@ function ContentsModal({ matchedMovie }: IContentsModal) {
 
                 <ModalOverview>{matchedMovie.overview}</ModalOverview>
               </>
+            ) : (
+              <>ㅁㄴㅇㅁㄴㅇ</>
             )}
           </Modal>
         </>

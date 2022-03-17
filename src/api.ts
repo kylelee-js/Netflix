@@ -1,7 +1,7 @@
 const API_KEY = "ce5d5fbe4a2df5d776a7c9913cad5b76";
 const BASE_PATH = "https://api.themoviedb.org/3";
 const IMAGE_PATH = "https://image.tmdb.org/t/p";
-interface Dates {
+export interface Dates {
   maximum: string;
   minimum: string;
 }
@@ -32,7 +32,7 @@ export interface IfetchMovies {
 }
 // ########################################################################################################################
 
-interface KnownFor {
+export interface KnownFor {
   adult: boolean;
   backdrop_path: string;
   genre_ids: number[];

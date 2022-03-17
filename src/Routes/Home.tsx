@@ -63,9 +63,7 @@ function Home() {
           </Banner>
           <SliderContainer>
             <Slider option="now_playing" />
-
             <Slider option="top_rated" />
-
             <Slider option="upcoming" />
           </SliderContainer>
         </>
