@@ -5,11 +5,13 @@ import {
   useViewportScroll,
   Variants,
 } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "react-query";
 import { useHistory, useRouteMatch } from "react-router-dom";
+import { useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import { fetchImage, fetchMovies, IfetchMovies } from "../api";
+import { fixedState } from "../atoms";
 import ContentsModal from "./ContentsModal";
 
 export const Carousel = styled.div`
@@ -18,56 +20,7 @@ export const Carousel = styled.div`
   width: 100%;
   top: -100px;
 `;
-const Overlay = styled(motion.div)`
-  z-index: 1000;
-  position: fixed;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  opacity: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-`;
 
-const Modal = styled(motion.div)<{ scrollY: MotionValue<number> }>`
-  z-index: 1001;
-  border-radius: 15px;
-  overflow: hidden;
-  top: ${(props) => props.scrollY.get() + 100}px;
-  position: absolute;
-  width: 60vw;
-  height: 80vh;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  background-color: ${(props) => props.theme.black.darker};
-`;
-
-const ModalCover = styled.div`
-  width: 100%;
-  background-position: center center;
-  background-size: cover !important;
-  height: 400px;
-  background: linear-gradient(
-    to top,
-    ${(props) => props.theme.black.darker},
-    rgba(0, 0, 0, 0)
-  );
-`;
-
-const ModalTitle = styled.h3`
-  position: relative;
-  font-size: 40px;
-  color: ${(props) => props.theme.white.lighter};
-  top: -200px;
-  padding: 40px;
-`;
-const ModalOverview = styled.p`
-  padding: 20px;
-  position: relative;
-  top: -80px;
-  width: 65%;
-  color: ${(props) => props.theme.white.lighter};
-`;
 // ######### Button ##################################################################################################
 const PrevContent = styled.div`
   position: absolute;
@@ -101,7 +54,7 @@ export const ContentsRow = styled(motion.div)`
 `;
 
 export const Box = styled(motion.div)<{ bgPhoto: string }>`
-  background-color: white;
+  background-color: #252525;
   background-image: url(${(props) => props.bgPhoto});
   background-size: cover;
   background-position: center center;
@@ -149,10 +102,18 @@ const boxVariants: Variants = {
     zIndex: 99,
     scale: 1.5,
     y: -50,
+    // borderRadius: 10,
     transition: {
       delay: 0.5,
       duration: 0.3,
       type: "tween",
+    },
+  },
+  end: {
+    opacity: 0,
+    transition: {
+      scale: 10.2,
+      duration: 0.5,
     },
   },
 };
@@ -181,6 +142,7 @@ interface ISlider {
   option: string;
 }
 function Slider({ option }: ISlider) {
+  const setFixed = useSetRecoilState(fixedState);
   const { data, isLoading } = useQuery<IfetchMovies>(["movies", option], () =>
     fetchMovies(option)
   );
@@ -189,11 +151,16 @@ function Slider({ option }: ISlider) {
     `/movies/${option}/:movieId`
   );
   const history = useHistory();
+
+  // 그냥 toggleLeaving으로 통일해도 문제 없을 듯?
+  const [modalClicked, setModalClicked] = useState(false);
+  const toggleModalClicked = () => setModalClicked((prev) => !prev);
+  //
   const modalClick = (movieId: number) => {
+    toggleModalClicked();
+    setFixed(true);
     history.push(`/movies/${option}/${movieId}`);
   };
-
-  const { scrollY } = useViewportScroll();
 
   const matchedMovie =
     modalMatch?.params.movieId &&
@@ -228,9 +195,6 @@ function Slider({ option }: ISlider) {
     }
   };
 
-  const onOverlayClick = () => {
-    history.push("/");
-  };
   return (
     <Wrapper>
       <SliderTitle>{option.toUpperCase().replace("_", " ")}</SliderTitle>
@@ -269,6 +233,7 @@ function Slider({ option }: ISlider) {
                   onClick={() => modalClick(movie.id)}
                   whileHover="hover"
                   initial="normal"
+                  exit="end"
                   variants={boxVariants}
                   transition={{ type: "tween" }}
                   bgPhoto={fetchImage(movie.backdrop_path, "w500")}
@@ -290,39 +255,9 @@ function Slider({ option }: ISlider) {
           </NextContent>
         </AnimatePresence>
       </Carousel>
-
-      <AnimatePresence>
-        {modalMatch && (
-          <>
-            <Overlay
-              onClick={onOverlayClick}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-            <Modal
-              scrollY={scrollY}
-              layoutId={option + modalMatch.params.movieId}
-              id={option + modalMatch.params.movieId}
-            >
-              {matchedMovie && (
-                <>
-                  <ModalCover
-                    style={{
-                      backgroundImage: `linear-gradient(to top, #181818, transparent 70.71%), url(${fetchImage(
-                        matchedMovie.backdrop_path,
-                        "w500"
-                      )})`,
-                    }}
-                  />
-                  <ModalTitle>{matchedMovie.title}</ModalTitle>
-
-                  <ModalOverview>{matchedMovie.overview}</ModalOverview>
-                </>
-              )}
-            </Modal>
-          </>
-        )}
-      </AnimatePresence>
+      {matchedMovie && (
+        <ContentsModal option={option} matchedMovie={matchedMovie} />
+      )}
     </Wrapper>
   );
 }

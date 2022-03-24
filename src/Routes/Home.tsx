@@ -2,7 +2,7 @@ import { useQuery } from "react-query";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { fetchImage, fetchMovies, IfetchMovies } from "../api";
-import { searchOpenState } from "../atoms";
+import { fixedState, searchOpenState } from "../atoms";
 import Slider from "../Components/Slider";
 
 const Wrapper = styled.div`
@@ -45,6 +45,7 @@ const SliderContainer = styled.div`
 // ######### Components ##############################################################################################################
 
 function Home() {
+  const [fixed, setFixed] = useRecoilState(fixedState);
   const { data, isLoading } = useQuery<IfetchMovies>(
     ["movies", "nowPlaying"],
     () => fetchMovies("now_playing")
@@ -52,7 +53,19 @@ function Home() {
   const [searchOpen, setSearchOpen] = useRecoilState(searchOpenState);
 
   return (
-    <Wrapper onClick={() => setSearchOpen(false)}>
+    <Wrapper
+      onClick={() => setSearchOpen(false)}
+      // style={
+      //   fixed
+      //     ? {
+      //         position: "fixed",
+      //         top: `-${window.scrollY}px`,
+      //         overflowY: "scroll",
+      //         width: "100%",
+      //       }
+      //     : {}
+      // }
+    >
       {isLoading ? (
         <Loader>Loading</Loader>
       ) : (
