@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { useQuery } from "react-query";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { fetchImage, fetchMovies, IfetchMovies } from "../api";
 import { fixedState, searchOpenState } from "../atoms";
+import Footer from "../Components/Footer";
 import Slider from "../Components/Slider";
 
 const Wrapper = styled.div`
@@ -60,10 +62,9 @@ function Home() {
       //     ? {
       //         position: "fixed",
       //         top: `-${window.scrollY}px`,
-      //         overflowY: "scroll",
       //         width: "100%",
       //       }
-      //     : {}
+      //     : { position: "static" }
       // }
     >
       {isLoading ? (
@@ -81,6 +82,8 @@ function Home() {
           </SliderContainer>
         </>
       )}
+
+      <Footer />
     </Wrapper>
   );
 }

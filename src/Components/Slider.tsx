@@ -53,11 +53,30 @@ export const ContentsRow = styled(motion.div)`
   gap: 5px;
 `;
 
+const Shade = styled(motion.div)`
+  z-index: 10;
+  position: absolute;
+  background-color: #252525;
+  height: 200px;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  &:first-child {
+    transform-origin: center left;
+  }
+  &:last-child {
+    transform-origin: center right;
+  }
+`;
+
 export const Box = styled(motion.div)<{ bgPhoto: string }>`
+  z-index: 11;
   background-color: #252525;
   background-image: url(${(props) => props.bgPhoto});
   background-size: cover;
   background-position: center center;
+  position: relative;
   height: 200px;
   font-size: 66px;
   &:first-child {
@@ -69,6 +88,7 @@ export const Box = styled(motion.div)<{ bgPhoto: string }>`
 `;
 
 const SliderTitle = styled.div`
+  margin-left: 20px;
   padding: 10px;
   font-size: 36px;
 `;
@@ -78,10 +98,14 @@ export const BoxInfo = styled(motion.div)`
   /* position: absolute; */
 
   /* Box 컴포넌트의 높이를 가져오자 */
-  top: 200px;
-  background-color: ${(props) => props.theme.black.lighter};
+  top: 150px;
+  /* background-color: ${(props) => props.theme.black.lighter};*/
+  background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8) 70.71%);
   opacity: 0;
-
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: end;
   width: 100%;
   h4 {
     text-align: center;
@@ -99,8 +123,9 @@ const boxVariants: Variants = {
     scale: 1,
   },
   hover: {
-    zIndex: 99,
+    zIndex: 100,
     scale: 1.5,
+    borderRadius: 5,
     y: -50,
     // borderRadius: 10,
     transition: {
@@ -110,7 +135,6 @@ const boxVariants: Variants = {
     },
   },
   end: {
-    opacity: 0,
     transition: {
       scale: 10.2,
       duration: 0.5,
@@ -225,24 +249,35 @@ function Slider({ option }: ISlider) {
             {data?.results
               .slice(1)
               .slice(offset * index, offset * index + offset)
-              .map((movie) => (
-                <Box
-                  key={option + movie.id}
-                  layoutId={option + String(movie.id)}
-                  id={option + String(movie.id)}
-                  onClick={() => modalClick(movie.id)}
-                  whileHover="hover"
-                  initial="normal"
-                  exit="end"
-                  variants={boxVariants}
-                  transition={{ type: "tween" }}
-                  bgPhoto={fetchImage(movie.backdrop_path, "w500")}
-                >
-                  <BoxInfo variants={infoVariants}>
-                    <h4>{movie.title}</h4>
-                  </BoxInfo>
-                </Box>
-              ))}
+              .map((movie) => {
+                const url = fetchImage(movie.backdrop_path, "w500");
+                return (
+                  <>
+                    <Box
+                      key={option + movie.id}
+                      id={option + String(movie.id)}
+                      bgPhoto={url}
+                      onClick={() => modalClick(movie.id)}
+                      whileHover="hover"
+                      initial="normal"
+                      exit="end"
+                      variants={boxVariants}
+                      transition={{ type: "tween" }}
+                    >
+                      <Shade
+                        // bgPhoto={fetchImage(movie.backdrop_path, "w500")}
+                        initial={{ opacity: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        layoutId={option + String(movie.id)}
+                      />
+                      <BoxInfo variants={infoVariants}>
+                        <h4>{movie.title}</h4>
+                      </BoxInfo>
+                    </Box>
+                  </>
+                );
+              })}
           </ContentsRow>
           <NextContent onClick={increaseIndex}>
             <svg
