@@ -1,3 +1,4 @@
+import { clearAllBodyScrollLocks, disableBodyScroll } from "body-scroll-lock";
 import {
   AnimatePresence,
   motion,
@@ -180,8 +181,17 @@ function Slider({ option }: ISlider) {
   const [modalClicked, setModalClicked] = useState(false);
   const toggleModalClicked = () => setModalClicked((prev) => !prev);
   //
+
+  let MyRef = useRef<HTMLDivElement>(null);
+  let ModalElem: HTMLDivElement | null = null;
   const modalClick = (movieId: number) => {
     toggleModalClicked();
+    if (ModalElem != null) {
+      console.log("scroll event success");
+      disableBodyScroll(ModalElem);
+    } else {
+      console.log("Modal elem is still null!!");
+    }
     setFixed(true);
     history.push(`/movies/${option}/${movieId}`);
   };
@@ -219,6 +229,10 @@ function Slider({ option }: ISlider) {
     }
   };
 
+  useEffect(() => {
+    ModalElem = MyRef.current;
+    console.log(ModalElem);
+  }, []);
   return (
     <Wrapper>
       <SliderTitle>{option.toUpperCase().replace("_", " ")}</SliderTitle>
@@ -291,7 +305,11 @@ function Slider({ option }: ISlider) {
         </AnimatePresence>
       </Carousel>
       {matchedMovie && (
-        <ContentsModal option={option} matchedMovie={matchedMovie} />
+        <ContentsModal
+          ref={MyRef}
+          option={option}
+          matchedMovie={matchedMovie}
+        />
       )}
     </Wrapper>
   );

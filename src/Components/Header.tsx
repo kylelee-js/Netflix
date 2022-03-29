@@ -5,7 +5,7 @@ import {
   useViewportScroll,
   useTransform,
 } from "framer-motion";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useHistory, useRouteMatch } from "react-router-dom";
 import { useRecoilState } from "recoil";
@@ -24,15 +24,6 @@ const Nav = styled(motion.nav)`
   background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0) 70.71%);
   background-color: black;
   padding: 20px 60px;
-`;
-
-const CloseNav = styled.div`
-  width: 100%;
-  position: fixed;
-  top: 0;
-  background-color: transparent;
-  padding: 20px 60px;
-  height: 200px;
 `;
 
 const navVariants = {
@@ -114,17 +105,18 @@ const Circle = styled(motion.div)`
   margin: 0 auto;
 `;
 
-const logoVariants: Variants = {
-  initial: {
-    fillOpacity: 1,
-  },
-  active: {
-    fillOpacity: [0, 1, 0],
-    transition: {
-      repeat: Infinity,
-    },
-  },
-};
+// 로고 모션... 하지만 너무 별로여서 나중에 따로 만들자
+// const logoVariants: Variants = {
+//   initial: {
+//     fillOpacity: 1,
+//   },
+//   active: {
+//     fillOpacity: [0, 1, 0],
+//     transition: {
+//       repeat: Infinity,
+//     },
+//   },
+// };
 interface IForm {
   keyword: string;
 }
@@ -144,8 +136,17 @@ function Header() {
     [0, 300],
     ["rgba(0,0,0,0)", "rgba(0,0,0,1)"]
   );
-
-  const toggleSearchOpen = () => {
+  const searchClose = () => {
+    inputAnimation.start({
+      scaleX: 0,
+    });
+    setSearchOpen(false);
+  };
+  const resistParent = (e: React.MouseEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+  };
+  const toggleSearchOpen = (e: React.MouseEvent<SVGSVGElement>) => {
+    e.stopPropagation();
     if (searchOpen) {
       inputAnimation.start({
         scaleX: 0,
@@ -155,7 +156,6 @@ function Header() {
         scaleX: 1,
       });
     }
-
     setSearchOpen((prev) => !prev);
   };
 
@@ -175,7 +175,11 @@ function Header() {
   const tvMatch = useRouteMatch("/tv");
   return (
     <>
-      <Nav variants={navVariants} style={{ backgroundColor }}>
+      <Nav
+        variants={navVariants}
+        style={{ backgroundColor }}
+        onClick={searchClose}
+      >
         <Col>
           <StyledLink to={"/"}>
             <Logo
@@ -223,6 +227,7 @@ function Header() {
               initial={{ scaleX: 0 }}
               transition={{ type: "linear" }}
               placeholder="Title, Actor, Genre"
+              onClick={resistParent}
             />
           </Search>
         </Col>

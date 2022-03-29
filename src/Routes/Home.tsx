@@ -56,6 +56,7 @@ function Home() {
 
   return (
     <Wrapper
+      id="HomeWrapper"
       onClick={() => setSearchOpen(false)}
       // style={
       //   fixed
