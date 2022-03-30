@@ -6,6 +6,7 @@ import {
   useViewportScroll,
   Variants,
 } from "framer-motion";
+import { off } from "process";
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "react-query";
 import { useHistory, useRouteMatch } from "react-router-dom";
@@ -46,13 +47,21 @@ const NextContent = styled.div`
   background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1));
 `;
 // ###################################################################################################################
-export const ContentsRow = styled(motion.div)`
+const ContentsRow = styled(motion.div)<{ offSet: string }>`
   display: grid;
   width: 100%;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(${(props) => props.offSet}, 1fr);
   position: absolute;
   gap: 5px;
 `;
+
+// const ContentsRow = styled(motion.div)`
+//   display: grid;
+//   width: 100%;
+//   grid-template-columns: repeat(6, 1fr);
+//   position: absolute;
+//   gap: 5px;
+// `;
 
 const Shade = styled(motion.div)`
   z-index: 10;
@@ -70,7 +79,7 @@ const Shade = styled(motion.div)`
     transform-origin: center right;
   }
 `;
-
+// let offset = 6;
 export const Box = styled(motion.div)<{ bgPhoto: string }>`
   z-index: 11;
   background-color: #252525;
@@ -161,12 +170,13 @@ const infoVariants: Variants = {
   },
 };
 
-let offset = 6;
-
 interface ISlider {
   option: string;
 }
+
 function Slider({ option }: ISlider) {
+  let [offset, setOffset] = useState(6);
+
   const setFixed = useSetRecoilState(fixedState);
   const { data, isLoading } = useQuery<IfetchMovies>(["movies", option], () =>
     fetchMovies(option)
@@ -182,16 +192,8 @@ function Slider({ option }: ISlider) {
   const toggleModalClicked = () => setModalClicked((prev) => !prev);
   //
 
-  let MyRef = useRef<HTMLDivElement>(null);
-  let ModalElem: HTMLDivElement | null = null;
   const modalClick = (movieId: number) => {
     toggleModalClicked();
-    if (ModalElem != null) {
-      console.log("scroll event success");
-      disableBodyScroll(ModalElem);
-    } else {
-      console.log("Modal elem is still null!!");
-    }
     setFixed(true);
     history.push(`/movies/${option}/${movieId}`);
   };
@@ -230,8 +232,15 @@ function Slider({ option }: ISlider) {
   };
 
   useEffect(() => {
-    ModalElem = MyRef.current;
-    console.log(ModalElem);
+    // resize 이벤트 리스너 추가해서 실시간으로 반응형 웹 만들기
+
+    if (window.innerWidth < 450) {
+      setOffset(3);
+    } else if (window.innerWidth <= 800) {
+      setOffset(4);
+    } else if (window.innerWidth < 1000) {
+      setOffset(5);
+    }
   }, []);
   return (
     <Wrapper>
@@ -259,6 +268,7 @@ function Slider({ option }: ISlider) {
             exit="exit"
             transition={{ type: "tween", duration: 1 }}
             key={index}
+            offSet={offset + ""}
           >
             {data?.results
               .slice(1)
@@ -305,11 +315,7 @@ function Slider({ option }: ISlider) {
         </AnimatePresence>
       </Carousel>
       {matchedMovie && (
-        <ContentsModal
-          ref={MyRef}
-          option={option}
-          matchedMovie={matchedMovie}
-        />
+        <ContentsModal option={option} matchedMovie={matchedMovie} />
       )}
     </Wrapper>
   );

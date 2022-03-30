@@ -1,15 +1,10 @@
-import { AnimatePresence, Variants } from "framer-motion";
+import { AnimatePresence, motion, Variants } from "framer-motion";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { fetchImage, fetchSearchResult, IFetchSearch } from "../api";
-import Slider, {
-  Box,
-  BoxInfo,
-  Carousel,
-  ContentsRow,
-} from "../Components/Slider";
+import Slider, { Box, BoxInfo, Carousel } from "../Components/Slider";
 
 const Banner = styled.div`
   width: 100%;
@@ -26,6 +21,13 @@ const Wrapper = styled.div`
   grid-template-rows: 150px 300px;
 `;
 
+const ContentsRow = styled(motion.div)<{ offSet: string }>`
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(${(props) => props.offSet}, 1fr);
+  position: absolute;
+  gap: 5px;
+`;
 const boxVariants: Variants = {
   normal: {
     scale: 1,
@@ -90,6 +92,7 @@ function Search() {
               exit="exit"
               transition={{ type: "tween", duration: 1 }}
               key={index}
+              offSet={"6"}
             >
               {data?.results
                 .slice(1)
