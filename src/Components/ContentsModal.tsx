@@ -38,6 +38,16 @@ const Modal = styled(motion.div)<{ scrollY: MotionValue<number> }>`
   top: ${(props) => props.scrollY.get() + 20}px;
   position: absolute;
   width: 850px;
+  @media screen and (max-width: 850px) {
+    width: 700px;
+  }
+  @media screen and (max-width: 786px) {
+    width: 600px;
+  }
+  @media screen and (max-width: 600px) {
+    width: 500px;
+  }
+
   height: 95%;
   left: 0;
   right: 0;
@@ -51,7 +61,17 @@ const ModalCover = styled.div<{ bgURL: string }>`
   background-size: cover !important;
   background-image: linear-gradient(to top, #181818, transparent 50%),
     url(${(props) => props.bgURL}) !important;
-  min-height: 500px;
+  height: 500px;
+  @media screen and (max-width: 850px) {
+    height: 400px;
+  }
+  @media screen and (max-width: 786px) {
+    height: 300px;
+  }
+  @media screen and (max-width: 600px) {
+    height: 250px;
+  }
+
   background: linear-gradient(
     to top,
     ${(props) => props.theme.black.darker},

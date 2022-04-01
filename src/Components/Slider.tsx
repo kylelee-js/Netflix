@@ -232,15 +232,23 @@ function Slider({ option }: ISlider) {
   };
 
   useEffect(() => {
+    const setResponsiveOffset = () => {
+      if (window.innerWidth < 600) {
+        setOffset(3);
+      } else if (window.innerWidth <= 800) {
+        setOffset(4);
+      } else if (window.innerWidth < 1000) {
+        setOffset(5);
+      } else if (window.innerWidth > 1000) {
+        setOffset(6);
+      }
+    };
     // resize 이벤트 리스너 추가해서 실시간으로 반응형 웹 만들기
 
-    if (window.innerWidth < 450) {
-      setOffset(3);
-    } else if (window.innerWidth <= 800) {
-      setOffset(4);
-    } else if (window.innerWidth < 1000) {
-      setOffset(5);
-    }
+    window.addEventListener("resize", setResponsiveOffset);
+
+    // 항상 이벤트 리스너를 리턴해서 메모리 누수를 막아야한다.
+    return () => window.removeEventListener("resize", setResponsiveOffset);
   }, []);
   return (
     <Wrapper>
