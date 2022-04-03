@@ -197,14 +197,12 @@ const TVContentsModal = ({
   const [fixed, setFixed] = useRecoilState(fixedState);
   const onOverlayClick = () => {
     setFixed(false);
-    history.push("/");
+    history.push("/tv");
   };
 
   const { scrollY } = useViewportScroll();
 
-  const modalMatch = useRouteMatch<{ movieId: string }>(
-    `/movies/${option}/:movieId`
-  );
+  const modalMatch = useRouteMatch<{ tvId: string }>(`/tv/${option}/:tvId`);
 
   let MyRef = useRef<HTMLDivElement>(null);
   let ModalElem: HTMLElement | null = null;
@@ -235,9 +233,9 @@ const TVContentsModal = ({
               className="Modal"
               variants={modalVariants}
               scrollY={scrollY}
-              layoutId={option + modalMatch.params.movieId}
+              layoutId={option + modalMatch.params.tvId}
               exit="exit"
-              id={option + modalMatch.params.movieId}
+              id={option + modalMatch.params.tvId}
             >
               {matchedContents && (
                 <>

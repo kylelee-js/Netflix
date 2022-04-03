@@ -4,13 +4,7 @@ import { useQuery } from "react-query";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import styled from "styled-components";
-import {
-  fetchImage,
-  fetchMovies,
-  fetchTV,
-  IFetchMovies,
-  IFetchTV,
-} from "../api";
+import { fetchImage, fetchTV, IFetchTV } from "../api";
 import { fixedState, tvContents } from "../atoms";
 import TVContentsModal from "./TVContentsModal";
 
@@ -182,9 +176,7 @@ function TVSlider({ option }: ISlider) {
     fetchTV(option)
   );
 
-  const modalMatch = useRouteMatch<{ movieId: string }>(
-    `/movies/${option}/:movieId`
-  );
+  const modalMatch = useRouteMatch<{ tvId: string }>(`/tv/${option}/:tvId`);
   const history = useHistory();
 
   // 그냥 toggleLeaving으로 통일해도 문제 없을 듯?
@@ -192,16 +184,16 @@ function TVSlider({ option }: ISlider) {
   const toggleModalClicked = () => setModalClicked((prev) => !prev);
   //
 
-  const modalClick = (movieId: number) => {
+  const modalClick = (tvId: number) => {
     toggleModalClicked();
     setFixed(true);
-    history.push(`/movies/${option}/${movieId}`);
+    history.push(`/tv/${option}/${tvId}`);
   };
 
   const matchedTV =
-    modalMatch?.params.movieId &&
+    modalMatch?.params.tvId &&
     data?.results.find(
-      (movie: any) => String(movie.id) == modalMatch.params.movieId
+      (movie: any) => String(movie.id) == modalMatch.params.tvId
     );
 
   // console.log(option + modalMatch?.params.movieId == option + String(movie?.id));
@@ -252,7 +244,7 @@ function TVSlider({ option }: ISlider) {
   }, []);
   return (
     <Wrapper>
-      <SliderTitle>{option.toUpperCase().replace("_", " ")}</SliderTitle>
+      <SliderTitle>{option.toUpperCase().replaceAll("_", " ")}</SliderTitle>
       <Carousel>
         <AnimatePresence
           custom={isBack}

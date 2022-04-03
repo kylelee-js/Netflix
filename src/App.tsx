@@ -12,7 +12,7 @@ function App() {
       <Header />
       <Switch>
         <>
-          <Route path="/tv">
+          <Route path={["/tv", "/tv/*"]}>
             <TV />
           </Route>
           <Route path="/search">
