@@ -2,10 +2,11 @@ import { useEffect } from "react";
 import { useQuery } from "react-query";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
-import { fetchImage, fetchMovies, IfetchMovies } from "../api";
+import { fetchImage, fetchMovies, IFetchMovies } from "../api";
 import { fixedState, searchOpenState } from "../atoms";
 import Footer from "../Components/Footer";
-import Slider from "../Components/Slider";
+import MovieSlider from "../Components/MovieSlider";
+import Slider from "../Components/MovieSlider";
 
 const Wrapper = styled.div`
   background-color: black;
@@ -48,7 +49,7 @@ const SliderContainer = styled.div`
 
 function Home() {
   const [fixed, setFixed] = useRecoilState(fixedState);
-  const { data, isLoading } = useQuery<IfetchMovies>(
+  const { data, isLoading } = useQuery<IFetchMovies>(
     ["movies", "nowPlaying"],
     () => fetchMovies("now_playing")
   );
@@ -77,9 +78,9 @@ function Home() {
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
           <SliderContainer>
-            <Slider option="now_playing" />
-            <Slider option="top_rated" />
-            <Slider option="upcoming" />
+            <MovieSlider option="now_playing" />
+            <MovieSlider option="top_rated" />
+            <MovieSlider option="upcoming" />
           </SliderContainer>
         </>
       )}

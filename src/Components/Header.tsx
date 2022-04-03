@@ -94,11 +94,13 @@ const Item = styled.li`
 `;
 
 const Circle = styled(motion.div)`
+  z-index: 19999;
   width: 5px;
   height: 5px;
   background-color: ${(props) => props.theme.red};
   border-radius: 5px;
   position: absolute;
+  /* left: 10px; */
   bottom: -10px;
   left: 0;
   right: 0;

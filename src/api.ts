@@ -23,7 +23,7 @@ export interface IMovie {
   vote_count: number;
 }
 
-export interface IfetchMovies {
+export interface IFetchMovies {
   dates: Dates;
   page: number;
   results: IMovie[];
@@ -53,7 +53,7 @@ export interface KnownFor {
   original_name: string;
 }
 
-export interface Result {
+export interface ISearchResult {
   adult: boolean;
   backdrop_path: string;
   genre_ids: number[];
@@ -81,7 +81,34 @@ export interface Result {
 
 export interface IFetchSearch {
   page: number;
-  results: Result[];
+  results: ISearchResult[];
+  total_pages: number;
+  total_results: number;
+}
+
+export type IContents = IMovie & ITV;
+
+// ########################################################################################################################
+
+export interface ITV {
+  backdrop_path: string;
+  first_air_date: string;
+  genre_ids: number[];
+  id: number;
+  name: string;
+  origin_country: string[];
+  original_language: string;
+  original_name: string;
+  overview: string;
+  popularity: number;
+  poster_path: string;
+  vote_average: number;
+  vote_count: number;
+}
+
+export interface IFetchTV {
+  page: number;
+  results: ITV[];
   total_pages: number;
   total_results: number;
 }
@@ -90,6 +117,12 @@ export interface IFetchSearch {
 
 export function fetchMovies(option: string) {
   return fetch(`${BASE_PATH}/movie/${option}?api_key=${API_KEY}`).then((res) =>
+    res.json()
+  );
+}
+
+export function fetchTV(option: string) {
+  return fetch(`${BASE_PATH}/tv/${option}?api_key=${API_KEY}`).then((res) =>
     res.json()
   );
 }

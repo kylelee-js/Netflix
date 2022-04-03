@@ -5,12 +5,12 @@ import {
   useViewportScroll,
   Variants,
 } from "framer-motion";
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { ContextType, forwardRef, useEffect, useRef, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
-import { fetchImage, IMovie } from "../api";
-import { fixedState } from "../atoms";
+import { fetchImage, IMovie, ITV } from "../api";
+import { fixedState, movieContents, tvContents } from "../atoms";
 import { disableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock";
 
 const Wrapper = styled.div``;
@@ -183,11 +183,17 @@ const modalVariants: Variants = {
 
 interface IContentsModal {
   option: string;
-  matchedMovie?: IMovie | "";
+  contentType: string;
+  matchedContents: IMovie | "";
 }
 
-const ContentsModal = ({ option, matchedMovie }: IContentsModal) => {
+const MovieContentsModal = ({
+  option,
+  contentType,
+  matchedContents,
+}: IContentsModal) => {
   const history = useHistory();
+
   const [fixed, setFixed] = useRecoilState(fixedState);
   const onOverlayClick = () => {
     setFixed(false);
@@ -195,7 +201,6 @@ const ContentsModal = ({ option, matchedMovie }: IContentsModal) => {
   };
 
   const { scrollY } = useViewportScroll();
-  console.log("matchedMovie in Modal", matchedMovie);
 
   const modalMatch = useRouteMatch<{ movieId: string }>(
     `/movies/${option}/:movieId`
@@ -234,10 +239,13 @@ const ContentsModal = ({ option, matchedMovie }: IContentsModal) => {
               exit="exit"
               id={option + modalMatch.params.movieId}
             >
-              {matchedMovie && (
+              {matchedContents && (
                 <>
                   <ModalCover
-                    bgURL={fetchImage(matchedMovie.backdrop_path, "original")}
+                    bgURL={fetchImage(
+                      matchedContents.backdrop_path,
+                      "original"
+                    )}
                   >
                     <CloseButton onClick={onOverlayClick}>
                       <svg
@@ -260,7 +268,7 @@ const ContentsModal = ({ option, matchedMovie }: IContentsModal) => {
                     </CloseButton>
                   </ModalCover>
 
-                  <ModalTitle>{matchedMovie.title}</ModalTitle>
+                  <ModalTitle>{matchedContents.title}</ModalTitle>
                   <PlayerButtons>
                     <PlayButton>
                       <svg
@@ -314,12 +322,12 @@ const ContentsModal = ({ option, matchedMovie }: IContentsModal) => {
                     </LikeButton>
                   </PlayerButtons>
                   <ModalGrid>
-                    <ModalOverview>{matchedMovie.overview}</ModalOverview>
+                    <ModalOverview>{matchedContents.overview}</ModalOverview>
 
                     <ModalInfo>
-                      <h3>Liked : {matchedMovie.vote_count}</h3>
-                      <h3>Released : {matchedMovie.release_date}</h3>
-                      <h3>Popularity : {matchedMovie.popularity}</h3>
+                      <h3>Liked : {matchedContents.vote_count}</h3>
+                      <h3>Released : {matchedContents.release_date}</h3>
+                      <h3>Popularity : {matchedContents.popularity}</h3>
                     </ModalInfo>
                   </ModalGrid>
 
@@ -376,4 +384,4 @@ const ContentsModal = ({ option, matchedMovie }: IContentsModal) => {
   );
 };
 
-export default ContentsModal;
+export default MovieContentsModal;

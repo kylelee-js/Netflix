@@ -1,20 +1,18 @@
-import { clearAllBodyScrollLocks, disableBodyScroll } from "body-scroll-lock";
-import {
-  AnimatePresence,
-  motion,
-  MotionValue,
-  useViewportScroll,
-  Variants,
-} from "framer-motion";
-import { off } from "process";
-import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, Variants } from "framer-motion";
+import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import styled from "styled-components";
-import { fetchImage, fetchMovies, IfetchMovies } from "../api";
-import { fixedState } from "../atoms";
-import ContentsModal from "./ContentsModal";
+import {
+  fetchImage,
+  fetchMovies,
+  fetchTV,
+  IFetchMovies,
+  IFetchTV,
+} from "../api";
+import { fixedState, tvContents } from "../atoms";
+import TVContentsModal from "./TVContentsModal";
 
 export const Carousel = styled.div`
   /* grid-template-columns: 4% auto 4%; */
@@ -79,7 +77,7 @@ const Shade = styled(motion.div)`
     transform-origin: center right;
   }
 `;
-// let offset = 6;
+
 export const Box = styled(motion.div)<{ bgPhoto: string }>`
   z-index: 11;
   background-color: #252525;
@@ -174,14 +172,16 @@ interface ISlider {
   option: string;
 }
 
-function Slider({ option }: ISlider) {
+function TVSlider({ option }: ISlider) {
   let [offset, setOffset] = useState(6);
 
   const setFixed = useSetRecoilState(fixedState);
-  const { data, isLoading } = useQuery<IfetchMovies>(["movies", option], () =>
-    fetchMovies(option)
+
+  // if TV or Movie
+  const { data, isLoading } = useQuery<IFetchTV>(["tv", option], () =>
+    fetchTV(option)
   );
-  console.log(option);
+
   const modalMatch = useRouteMatch<{ movieId: string }>(
     `/movies/${option}/:movieId`
   );
@@ -198,12 +198,12 @@ function Slider({ option }: ISlider) {
     history.push(`/movies/${option}/${movieId}`);
   };
 
-  const matchedMovie =
+  const matchedTV =
     modalMatch?.params.movieId &&
     data?.results.find(
       (movie: any) => String(movie.id) == modalMatch.params.movieId
     );
-  console.log(matchedMovie);
+
   // console.log(option + modalMatch?.params.movieId == option + String(movie?.id));
   const [index, setIndex] = useState(0);
   const [leaving, setLeaving] = useState(false);
@@ -304,7 +304,7 @@ function Slider({ option }: ISlider) {
                         layoutId={option + String(movie.id)}
                       />
                       <BoxInfo variants={infoVariants}>
-                        <h4>{movie.title}</h4>
+                        <h4>{movie.name}</h4>
                       </BoxInfo>
                     </Box>
                   </>
@@ -322,11 +322,15 @@ function Slider({ option }: ISlider) {
           </NextContent>
         </AnimatePresence>
       </Carousel>
-      {matchedMovie && (
-        <ContentsModal option={option} matchedMovie={matchedMovie} />
+      {matchedTV && (
+        <TVContentsModal
+          contentType="tv"
+          option={option}
+          matchedContents={matchedTV}
+        />
       )}
     </Wrapper>
   );
 }
 
-export default Slider;
+export default TVSlider;

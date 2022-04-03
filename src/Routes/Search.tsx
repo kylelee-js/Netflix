@@ -4,7 +4,7 @@ import { useQuery } from "react-query";
 import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { fetchImage, fetchSearchResult, IFetchSearch } from "../api";
-import Slider, { Box, BoxInfo, Carousel } from "../Components/Slider";
+import Slider, { Box, BoxInfo, Carousel } from "../Components/MovieSlider";
 
 const Banner = styled.div`
   width: 100%;
