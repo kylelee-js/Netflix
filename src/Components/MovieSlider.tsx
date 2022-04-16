@@ -324,7 +324,7 @@ function MovieSlider({ option }: ISlider) {
       </Carousel>
       {matchedMovie && (
         <MovieContentsModal
-          contentType="movie"
+          contentID={matchedMovie.id}
           option={option}
           matchedContents={matchedMovie}
         />

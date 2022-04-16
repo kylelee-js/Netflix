@@ -196,7 +196,6 @@ function TVSlider({ option }: ISlider) {
       (movie: any) => String(movie.id) == modalMatch.params.tvId
     );
 
-  // console.log(option + modalMatch?.params.movieId == option + String(movie?.id));
   const [index, setIndex] = useState(0);
   const [leaving, setLeaving] = useState(false);
   const [isBack, setIsBack] = useState(false);
@@ -316,7 +315,7 @@ function TVSlider({ option }: ISlider) {
       </Carousel>
       {matchedTV && (
         <TVContentsModal
-          contentType="tv"
+          contentID={matchedTV.id}
           option={option}
           matchedContents={matchedTV}
         />

@@ -36,6 +36,13 @@ const Title = styled.h2`
 const Overview = styled.p`
   font-size: 32px;
   width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-height: 1em;
+  max-height: 4em;
 `;
 
 const SliderContainer = styled.div`
