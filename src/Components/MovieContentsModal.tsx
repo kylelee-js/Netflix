@@ -11,7 +11,10 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import {
   fetchImage,
+  fetchMovies,
   fetchSimilarMovie,
+  fetchSingleMovie,
+  IFetchMovies,
   IMovie,
   ISimilarMovie,
   ITV,
@@ -105,13 +108,6 @@ const ModalOverview = styled.p`
   font-size: 18px;
   width: 70%;
   color: ${(props) => props.theme.white.lighter};
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
-  line-height: 1em;
-  max-height: 4em;
 `;
 const PlayerButtons = styled.div`
   position: relative;
@@ -297,19 +293,26 @@ const modalVariants: Variants = {
 interface IContentsModal {
   option: string;
   contentID: number;
-  matchedContents: IMovie | "";
+  // matchedContents: IMovie | "";
 }
 
 const MovieContentsModal = ({
   option,
   contentID,
-  matchedContents,
-}: IContentsModal) => {
+}: // matchedContents,
+IContentsModal) => {
   const history = useHistory();
 
+  let [contentId, setContentId] = useState(contentID);
+  // let [matchedContents, setMatchedContents] = useState(matchedContent);
+
+  const movieContents = useQuery<IMovie>(["movie", contentId], () =>
+    fetchSingleMovie(contentId + "")
+  );
+
   const { data, isLoading } = useQuery<ISimilarMovie>(
-    ["similarMovie", contentID],
-    () => fetchSimilarMovie(contentID + "")
+    ["similarMovie", contentId],
+    () => fetchSimilarMovie(contentId + "")
   );
 
   const [fixed, setFixed] = useRecoilState(fixedState);
@@ -317,19 +320,18 @@ const MovieContentsModal = ({
     setFixed(false);
     history.push("/");
   };
+
   const modalClick = (movieId: number) => {
     // toggleModalClicked();
     // setFixed(true);
-    history.push(`/movies/${option}/${movieId}`);
+    setContentId(movieId);
+
+    // history.push(`/movies/${movieId}`);
   };
+
   const modalMatch = useRouteMatch<{ movieId: string }>(
     `/movies/${option}/:movieId`
   );
-  const matchedMovie =
-    modalMatch?.params.movieId &&
-    data?.results.find(
-      (movie: any) => String(movie.id) == modalMatch.params.movieId
-    );
 
   const { scrollY } = useViewportScroll();
 
@@ -366,11 +368,11 @@ const MovieContentsModal = ({
               exit="exit"
               id={option + modalMatch.params.movieId}
             >
-              {matchedContents && (
+              {movieContents.data && (
                 <>
                   <ModalCover
                     bgURL={fetchImage(
-                      matchedContents.backdrop_path,
+                      movieContents.data.backdrop_path,
                       "original"
                     )}
                   >
@@ -395,7 +397,7 @@ const MovieContentsModal = ({
                     </CloseButton>
                   </ModalCover>
 
-                  <ModalTitle>{matchedContents.title}</ModalTitle>
+                  <ModalTitle>{movieContents.data.title}</ModalTitle>
                   <PlayerButtons>
                     <PlayButton>
                       <svg
@@ -449,10 +451,10 @@ const MovieContentsModal = ({
                     </LikeButton>
                   </PlayerButtons>
                   <ModalGrid>
-                    <ModalOverview>{matchedContents.overview}</ModalOverview>
+                    <ModalOverview>{movieContents.data.overview}</ModalOverview>
                     <ModalMeta>
                       <ContentMeta>
-                        {matchedContents.adult ? (
+                        {movieContents.data.adult ? (
                           <svg
                             width="40"
                             height="40"
@@ -489,13 +491,13 @@ const MovieContentsModal = ({
                             ></path>
                           </svg>
                         )}
-                        {matchedContents.release_date.slice(0, 4)}
+                        {movieContents.data.release_date.slice(0, 4)}
                       </ContentMeta>
 
                       <ModalInfo>
-                        <h3>Liked : {matchedContents.vote_count}</h3>
+                        <h3>Liked : {movieContents.data.vote_count}</h3>
 
-                        <h3>Popularity : {matchedContents.popularity}</h3>
+                        <h3>Popularity : {movieContents.data.popularity}</h3>
                       </ModalInfo>
                     </ModalMeta>
                   </ModalGrid>

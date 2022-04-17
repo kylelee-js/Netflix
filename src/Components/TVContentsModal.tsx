@@ -9,7 +9,14 @@ import { ContextType, forwardRef, useEffect, useRef, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
-import { fetchImage, fetchSimilarTV, IMovie, ISimilarTV, ITV } from "../api";
+import {
+  fetchImage,
+  fetchSimilarTV,
+  fetchSingleTV,
+  IMovie,
+  ISimilarTV,
+  ITV,
+} from "../api";
 import { fixedState, movieContents, tvContents } from "../atoms";
 import { disableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock";
 import { useQuery } from "react-query";
@@ -171,11 +178,11 @@ const Score = styled.span<{ score: number }>`
   padding: 0.3rem;
   width: 2.5rem;
   text-align: center;
-  border-radius: 10px;
+  border-radius: 7px;
   background-color: ${(props) => {
     if (props.score < 5) {
       return "grey";
-    } else if (props.score < 8) {
+    } else if (props.score < 7.3) {
       return "orange";
     } else if (props.score < 10) {
       return "green";
@@ -305,19 +312,23 @@ const modalVariants: Variants = {
 interface IContentsModal {
   option: string;
   contentID: number;
-  matchedContents?: ITV | "";
+  // matchedContents?: ITV | "";
 }
 
 const TVContentsModal = ({
   option,
   contentID,
-  matchedContents,
-}: IContentsModal) => {
+}: // matchedContents,
+IContentsModal) => {
   const history = useHistory();
 
-  const { data, isLoading } = useQuery<ISimilarTV>(
-    ["similarTV", contentID],
-    () => fetchSimilarTV(contentID + "")
+  let [tvId, setTVId] = useState(contentID);
+  const tvContents = useQuery<ITV>(["tv", tvId], () =>
+    fetchSingleTV(tvId + "")
+  );
+
+  const { data, isLoading } = useQuery<ISimilarTV>(["similarTV", tvId], () =>
+    fetchSimilarTV(tvId + "")
   );
 
   const [fixed, setFixed] = useRecoilState(fixedState);
@@ -325,10 +336,11 @@ const TVContentsModal = ({
     setFixed(false);
     history.push("/tv");
   };
-  const modalClick = (movieId: number) => {
+  const modalClick = (TVId: number) => {
     // toggleModalClicked();
     // setFixed(true);
-    history.push(`/movies/${option}/${movieId}`);
+    setTVId(TVId);
+    // history.push(`/tv/${option}/${TVId}`);
   };
 
   const { scrollY } = useViewportScroll();
@@ -366,11 +378,11 @@ const TVContentsModal = ({
               exit="exit"
               id={option + modalMatch.params.tvId}
             >
-              {matchedContents && (
+              {tvContents.data && (
                 <>
                   <ModalCover
                     bgURL={fetchImage(
-                      matchedContents.backdrop_path,
+                      tvContents.data.backdrop_path,
                       "original"
                     )}
                   >
@@ -395,7 +407,7 @@ const TVContentsModal = ({
                     </CloseButton>
                   </ModalCover>
 
-                  <ModalTitle>{matchedContents.name}</ModalTitle>
+                  <ModalTitle>{tvContents.data.name}</ModalTitle>
                   <PlayerButtons>
                     <PlayButton>
                       <svg
@@ -449,20 +461,20 @@ const TVContentsModal = ({
                     </LikeButton>
                   </PlayerButtons>
                   <ModalGrid>
-                    <ModalOverview>{matchedContents.overview}</ModalOverview>
+                    <ModalOverview>{tvContents.data.overview}</ModalOverview>
                     <ModalMeta>
                       <ContentMeta>
-                        <Score score={matchedContents.vote_average}>
-                          {matchedContents.vote_average.toString().slice(0, 3)}
+                        <Score score={tvContents.data.vote_average}>
+                          {tvContents.data.vote_average.toString().slice(0, 3)}
                         </Score>
 
-                        {matchedContents.first_air_date.slice(0, 4)}
+                        {tvContents.data.first_air_date.slice(0, 4)}
                       </ContentMeta>
 
                       <ModalInfo>
-                        <h3>Liked : {matchedContents.vote_count}</h3>
+                        <h3>Liked : {tvContents.data.vote_count}</h3>
 
-                        <h3>Popularity : {matchedContents.popularity}</h3>
+                        <h3>Popularity : {tvContents.data.popularity}</h3>
                       </ModalInfo>
                     </ModalMeta>
                   </ModalGrid>

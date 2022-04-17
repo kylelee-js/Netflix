@@ -317,7 +317,7 @@ function TVSlider({ option }: ISlider) {
         <TVContentsModal
           contentID={matchedTV.id}
           option={option}
-          matchedContents={matchedTV}
+          // matchedContents={matchedTV}
         />
       )}
     </Wrapper>

@@ -326,7 +326,7 @@ function MovieSlider({ option }: ISlider) {
         <MovieContentsModal
           contentID={matchedMovie.id}
           option={option}
-          matchedContents={matchedMovie}
+          // matchedContents={matchedMovie}
         />
       )}
     </Wrapper>

@@ -169,12 +169,23 @@ export function fetchMovies(option: string) {
   );
 }
 
+export function fetchSingleMovie(movieId: string) {
+  return fetch(`${BASE_PATH}/movie/${movieId}?api_key=${API_KEY}`).then((res) =>
+    res.json()
+  );
+}
+
 export function fetchTV(option: string) {
   return fetch(`${BASE_PATH}/tv/${option}?api_key=${API_KEY}`).then((res) =>
     res.json()
   );
 }
 
+export function fetchSingleTV(tvId: string) {
+  return fetch(`${BASE_PATH}/tv/${tvId}?api_key=${API_KEY}`).then((res) =>
+    res.json()
+  );
+}
 export function fetchSimilarMovie(option: string) {
   return fetch(`${BASE_PATH}/movie/${option}/similar?api_key=${API_KEY}`).then(
     (res) => res.json()
