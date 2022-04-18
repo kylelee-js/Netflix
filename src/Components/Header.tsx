@@ -128,7 +128,7 @@ function Header() {
   const { register, handleSubmit } = useForm<IForm>();
   const onValid = (data: IForm) => {
     history.push(`/search?keyword=${data.keyword}`);
-    history.go(0);
+    // history.go(0);
   };
 
   const [searchOpen, setSearchOpen] = useRecoilState(searchOpenState);
