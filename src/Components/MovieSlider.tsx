@@ -14,7 +14,7 @@ import {
 import { fixedState } from "../atoms";
 import MovieContentsModal from "./MovieContentsModal";
 
-export const Carousel = styled.div`
+const Carousel = styled.div`
   /* grid-template-columns: 4% auto 4%; */
   position: relative;
   width: 100%;

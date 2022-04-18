@@ -5,16 +5,21 @@ import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 import { fetchImage, fetchSearchResult, IFetchSearch } from "../api";
 import Footer from "../Components/Footer";
-import MovieContentsModal from "../Components/MovieContentsModal";
 import MovieSearchModal from "../Components/MovieSearchModal";
-import Slider, { BoxInfo, Carousel } from "../Components/MovieSlider";
-import TVContentsModal from "../Components/TVContentsModal";
+import Slider, { BoxInfo } from "../Components/MovieSlider";
 import TVSearchModal from "../Components/TVSeachModal";
 
 const Banner = styled.div`
   width: 100%;
   height: 20vh;
-  background-color: red;
+  background-color: ${(props) => props.theme.black.darker};
+`;
+const Carousel = styled.div`
+  /* grid-template-columns: 4% auto 4%; */
+  margin-top: 20px;
+  position: relative;
+  width: 100%;
+  top: -100px;
 `;
 const Box = styled(motion.div)<{ bgPhoto: string }>`
   z-index: 11;
@@ -108,9 +113,13 @@ const infoVariants: Variants = {
 
 function Search() {
   const location = useLocation();
+
   const keyword = new URLSearchParams(location.search).get("keyword");
-  const { data, isLoading } = useQuery<IFetchSearch>(["search", "multi"], () =>
-    fetchSearchResult(keyword + "")
+  let [queryKeyword, setQueryKeyword] = useState(keyword);
+
+  const { data, isLoading, refetch } = useQuery<IFetchSearch>(
+    ["search", "multi", queryKeyword],
+    () => fetchSearchResult(queryKeyword + "")
   );
   const [index, setIndex] = useState(0);
   let [offset, setOffset] = useState(6);
@@ -126,6 +135,17 @@ function Search() {
   };
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => setLeaving((prev) => !prev);
+
+  useEffect(() => {
+    const queryKW = new URLSearchParams(location.search).get("keyword");
+    console.log(queryKW);
+    if (queryKW !== null) {
+      setQueryKeyword(queryKW);
+    }
+
+    // refetch();
+  }, [location]);
+
   useEffect(() => {
     const setResponsiveOffset = () => {
       if (window.innerWidth < 600) {
