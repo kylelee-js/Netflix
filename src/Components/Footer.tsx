@@ -12,21 +12,42 @@ const Foot = styled.footer`
   color: grey;
 `;
 
+const Github = styled.a`
+  text-decoration: none;
+`;
+const Desc = styled.div`
+  display: grid;
+  grid-template-rows: repeat(5, 1fr);
+  gap: 10px;
+`;
+
 export default function Footer() {
   return (
     <Foot className="footer">
       <div className="logos"></div>
-      <div className="description">
+      <Desc>
         <p>
-          <span>영화 좋아 좋다 좋아</span>
+          <span>Netflix Clone Coding Project - 2022</span>
         </p>
         <p>
-          <span>대표 : 리기훈</span>
+          <span>개발 : 리기훈 @kylelee-js</span>
         </p>
         <p>
           <span>찾아오시는 길 : 서울특별시 중랑구 중랑역로 276-8</span>
         </p>
-      </div>
+        <p>
+          <span>
+            <Github href="https://github.com/kylelee-js/Netflix">
+              Github : https://github.com/kylelee-js/Netflix
+            </Github>
+          </span>
+        </p>
+        <p>
+          <Github href="https://velog.io/@whzjqkrtm12">
+            Velog : https://velog.io/@whzjqkrtm12
+          </Github>
+        </p>
+      </Desc>
     </Foot>
   );
 }

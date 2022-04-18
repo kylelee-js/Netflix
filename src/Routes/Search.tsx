@@ -1,30 +1,66 @@
 import { AnimatePresence, motion, Variants } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 import { fetchImage, fetchSearchResult, IFetchSearch } from "../api";
-import Slider, { Box, BoxInfo, Carousel } from "../Components/MovieSlider";
+import Footer from "../Components/Footer";
+import MovieContentsModal from "../Components/MovieContentsModal";
+import MovieSearchModal from "../Components/MovieSearchModal";
+import Slider, { BoxInfo, Carousel } from "../Components/MovieSlider";
+import TVContentsModal from "../Components/TVContentsModal";
+import TVSearchModal from "../Components/TVSeachModal";
 
 const Banner = styled.div`
   width: 100%;
   height: 20vh;
   background-color: red;
 `;
-
+const Box = styled(motion.div)<{ bgPhoto: string }>`
+  z-index: 11;
+  background-color: #252525;
+  background-image: url(${(props) => props.bgPhoto});
+  background-size: cover;
+  background-position: center center;
+  position: relative;
+  height: 200px;
+  font-size: 66px;
+  &:first-child {
+    transform-origin: center left;
+  }
+  &:last-child {
+    transform-origin: center right;
+  }
+`;
 const Title = styled.h2`
-  font-size: 40px;
+  font-size: 36px;
+  padding: 0.5rem;
 `;
 
 const Wrapper = styled.div`
   display: grid;
   grid-template-rows: 150px 300px;
 `;
-
-const ContentsRow = styled(motion.div)<{ offSet: string }>`
+const Shade = styled(motion.div)`
+  z-index: 10;
+  position: absolute;
+  background-color: #252525;
+  height: 200px;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  &:first-child {
+    transform-origin: center left;
+  }
+  &:last-child {
+    transform-origin: center right;
+  }
+`;
+const ContentsRow = styled(motion.div)<{ off_set: string }>`
   display: grid;
   width: 100%;
-  grid-template-columns: repeat(${(props) => props.offSet}, 1fr);
+  grid-template-columns: repeat(${(props) => props.off_set}, 1fr);
   position: absolute;
   gap: 5px;
 `;
@@ -33,13 +69,21 @@ const boxVariants: Variants = {
     scale: 1,
   },
   hover: {
-    zIndex: 99,
+    zIndex: 100,
     scale: 1.5,
+    borderRadius: 5,
     y: -50,
+    // borderRadius: 10,
     transition: {
       delay: 0.5,
       duration: 0.3,
       type: "tween",
+    },
+  },
+  end: {
+    transition: {
+      scale: 10.2,
+      duration: 0.5,
     },
   },
 };
@@ -62,8 +106,6 @@ const infoVariants: Variants = {
   },
 };
 
-const offset = 6;
-
 function Search() {
   const location = useLocation();
   const keyword = new URLSearchParams(location.search).get("keyword");
@@ -71,12 +113,37 @@ function Search() {
     fetchSearchResult(keyword + "")
   );
   const [index, setIndex] = useState(0);
+  let [offset, setOffset] = useState(6);
   const history = useHistory();
+  const modalMatch = useRouteMatch<{ movieId: string }>(`/search/:movieId`);
+  const matchedMovie =
+    modalMatch?.params.movieId &&
+    data?.results.find(
+      (movie: any) => String(movie.id) == modalMatch.params.movieId
+    );
   const modalClick = (movieId: number) => {
-    history.push(`/movies/${movieId}`);
+    history.push(`/search/${movieId}`);
   };
   const [leaving, setLeaving] = useState(false);
   const toggleLeaving = () => setLeaving((prev) => !prev);
+  useEffect(() => {
+    const setResponsiveOffset = () => {
+      if (window.innerWidth < 600) {
+        setOffset(3);
+      } else if (window.innerWidth <= 800) {
+        setOffset(4);
+      } else if (window.innerWidth < 1000) {
+        setOffset(5);
+      } else if (window.innerWidth > 1000) {
+        setOffset(6);
+      }
+    };
+    // resize 이벤트 리스너 추가해서 실시간으로 반응형 웹 만들기
+    window.addEventListener("resize", setResponsiveOffset);
+
+    // 항상 이벤트 리스너를 리턴해서 메모리 누수를 막아야한다.
+    return () => window.removeEventListener("resize", setResponsiveOffset);
+  }, []);
 
   return (
     <>
@@ -92,33 +159,65 @@ function Search() {
               exit="exit"
               transition={{ type: "tween", duration: 1 }}
               key={index}
-              offSet={"6"}
+              off_set={offset + ""}
             >
               {data?.results
                 .slice(1)
                 .slice(offset * index, offset * index + offset)
-                .map((movie) => (
-                  <Box
-                    key={movie.id}
-                    layoutId={movie.id + ""}
-                    onClick={() => modalClick(movie.id)}
-                    whileHover="hover"
-                    initial="normal"
-                    variants={boxVariants}
-                    transition={{ type: "tween" }}
-                    bgPhoto={fetchImage(movie.backdrop_path, "w500")}
-                  >
-                    <BoxInfo variants={infoVariants}>
-                      <h4>{movie.title}</h4>
-                    </BoxInfo>
-                  </Box>
-                ))}
+                .map((search) => {
+                  const url = fetchImage(search.backdrop_path, "w500");
+                  return (
+                    <>
+                      <Box
+                        key={search.id}
+                        id={String(search.id)}
+                        bgPhoto={url}
+                        onClick={() => modalClick(search.id)}
+                        whileHover="hover"
+                        initial="normal"
+                        exit="end"
+                        variants={boxVariants}
+                        transition={{ type: "tween" }}
+                      >
+                        <Shade
+                          // bgPhoto={fetchImage(movie.backdrop_path, "w500")}
+                          initial={{ opacity: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          layoutId={String(search.id)}
+                        />
+                        <BoxInfo variants={infoVariants}>
+                          {search.title && <h4>{search.title}</h4>}
+                          {search.name && <h4>{search.name}</h4>}
+                        </BoxInfo>
+                      </Box>
+                    </>
+                  );
+                })}
             </ContentsRow>
           </AnimatePresence>
         </Carousel>
+        {matchedMovie && (
+          <SearchModal type={matchedMovie.media_type} id={matchedMovie.id} />
+        )}
+        <Footer />
       </Wrapper>
     </>
   );
+}
+interface ISearchModal {
+  type: string;
+  id: number;
+}
+
+function SearchModal({ type, id }: ISearchModal) {
+  if (type == "movie") {
+    return <MovieSearchModal contentID={id} />;
+  } else if (type == "tv") {
+    return <TVSearchModal contentID={id} />;
+  } else {
+    return <></>;
+  }
 }
 
 export default Search;

@@ -310,7 +310,7 @@ const modalVariants: Variants = {
 };
 
 interface IContentsModal {
-  option: string;
+  option?: string;
   contentID: number;
   // matchedContents?: ITV | "";
 }
@@ -339,8 +339,8 @@ IContentsModal) => {
   const modalClick = (TVId: number) => {
     // toggleModalClicked();
     // setFixed(true);
-    setTVId(TVId);
     // history.push(`/tv/${option}/${TVId}`);
+    setTVId(TVId);
   };
 
   const { scrollY } = useViewportScroll();

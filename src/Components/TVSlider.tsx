@@ -176,6 +176,8 @@ function TVSlider({ option }: ISlider) {
     fetchTV(option)
   );
 
+  // 지금 data에 우리의 id랑 맞는 컨텐츠가 없기 때문에 matchedTV가 undefined여서 모달창이 꺼짐
+
   const modalMatch = useRouteMatch<{ tvId: string }>(`/tv/${option}/:tvId`);
   const history = useHistory();
 

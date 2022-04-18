@@ -296,7 +296,7 @@ interface IContentsModal {
   // matchedContents: IMovie | "";
 }
 
-const MovieContentsModal = ({
+const MovieSearchModal = ({
   option,
   contentID,
 }: // matchedContents,
@@ -318,7 +318,7 @@ IContentsModal) => {
   const [fixed, setFixed] = useRecoilState(fixedState);
   const onOverlayClick = () => {
     setFixed(false);
-    history.push("/");
+    history.goBack();
   };
 
   const modalClick = (movieId: number) => {
@@ -329,9 +329,7 @@ IContentsModal) => {
     // history.push(`/movies/${movieId}`);
   };
 
-  const modalMatch = useRouteMatch<{ movieId: string }>(
-    `/movies/${option}/:movieId`
-  );
+  const modalMatch = useRouteMatch<{ movieId: string }>(`/search/:movieId`);
 
   const { scrollY } = useViewportScroll();
 
@@ -363,9 +361,9 @@ IContentsModal) => {
               className="Modal"
               variants={modalVariants}
               scrollY={scrollY}
-              layoutId={option + modalMatch.params.movieId}
+              layoutId={modalMatch.params.movieId}
               exit="exit"
-              id={option + modalMatch.params.movieId}
+              id={modalMatch.params.movieId}
             >
               {movieContents.data && (
                 <>
@@ -596,4 +594,4 @@ IContentsModal) => {
   );
 };
 
-export default MovieContentsModal;
+export default MovieSearchModal;

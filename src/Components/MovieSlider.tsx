@@ -78,7 +78,7 @@ const Shade = styled(motion.div)`
   }
 `;
 
-export const Box = styled(motion.div)<{ bgPhoto: string }>`
+const Box = styled(motion.div)<{ bgPhoto: string }>`
   z-index: 11;
   background-color: #252525;
   background-image: url(${(props) => props.bgPhoto});
@@ -244,7 +244,6 @@ function MovieSlider({ option }: ISlider) {
       }
     };
     // resize 이벤트 리스너 추가해서 실시간으로 반응형 웹 만들기
-
     window.addEventListener("resize", setResponsiveOffset);
 
     // 항상 이벤트 리스너를 리턴해서 메모리 누수를 막아야한다.
