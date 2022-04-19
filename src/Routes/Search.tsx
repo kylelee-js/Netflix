@@ -21,6 +21,22 @@ const Carousel = styled.div`
   width: 100%;
   top: -100px;
 `;
+const Shade = styled(motion.div)`
+  z-index: 10;
+  position: absolute;
+  background-color: #252525;
+  height: 200px;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  &:first-child {
+    transform-origin: center left;
+  }
+  &:last-child {
+    transform-origin: center right;
+  }
+`;
 const Box = styled(motion.div)<{ bgPhoto: string }>`
   z-index: 11;
   background-color: #252525;
@@ -46,22 +62,7 @@ const Wrapper = styled.div`
   display: grid;
   grid-template-rows: 150px 300px;
 `;
-const Shade = styled(motion.div)`
-  z-index: 10;
-  position: absolute;
-  background-color: #252525;
-  height: 200px;
-  top: 0;
-  left: 0;
-  right: 0;
-  opacity: 0;
-  &:first-child {
-    transform-origin: center left;
-  }
-  &:last-child {
-    transform-origin: center right;
-  }
-`;
+
 const ContentsRow = styled(motion.div)<{ off_set: string }>`
   display: grid;
   width: 100%;
@@ -169,7 +170,12 @@ function Search() {
     <>
       <Banner />
       <Wrapper>
-        <Title>Search Results</Title>
+        <Title>Search Results - {queryKeyword}</Title>
+        {data?.results.length == 0 && (
+          <div style={{ marginLeft: "50px", fontSize: "30px" }}>
+            No Results are found.
+          </div>
+        )}
         <Carousel>
           <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
             <ContentsRow
@@ -183,7 +189,55 @@ function Search() {
             >
               {data?.results
                 .slice(1)
-                .slice(offset * index, offset * index + offset)
+                .slice(0, offset)
+                .map((search) => {
+                  const url = fetchImage(search.backdrop_path, "w500");
+                  return (
+                    <>
+                      <Box
+                        key={search.id}
+                        id={String(search.id)}
+                        bgPhoto={url}
+                        onClick={() => modalClick(search.id)}
+                        whileHover="hover"
+                        initial="normal"
+                        exit="end"
+                        variants={boxVariants}
+                        transition={{ type: "tween" }}
+                        // layoutId={String(search.id)}
+                      >
+                        <Shade
+                          // bgPhoto={fetchImage(movie.backdrop_path, "w500")}
+                          initial={{ opacity: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          layoutId={String(search.id)}
+                        />
+                        <BoxInfo variants={infoVariants}>
+                          {search.title && <h4>{search.title}</h4>}
+                          {search.name && <h4>{search.name}</h4>}
+                        </BoxInfo>
+                      </Box>
+                    </>
+                  );
+                })}
+            </ContentsRow>
+          </AnimatePresence>
+        </Carousel>
+        <Carousel>
+          <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+            <ContentsRow
+              variants={rowVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              transition={{ type: "tween", duration: 1 }}
+              key={index}
+              off_set={offset + ""}
+            >
+              {data?.results
+                .slice(1)
+                .slice(offset, offset + offset)
                 .map((search) => {
                   const url = fetchImage(search.backdrop_path, "w500");
                   return (
@@ -217,11 +271,12 @@ function Search() {
             </ContentsRow>
           </AnimatePresence>
         </Carousel>
+
         {matchedMovie && (
           <SearchModal type={matchedMovie.media_type} id={matchedMovie.id} />
         )}
-        <Footer />
       </Wrapper>
+      <Footer />
     </>
   );
 }

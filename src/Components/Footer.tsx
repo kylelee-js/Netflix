@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 const Foot = styled.footer`
+  margin-top: 200px;
   height: 200px;
   bottom: 0;
   padding-bottom: 30px;
