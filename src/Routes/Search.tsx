@@ -6,7 +6,7 @@ import styled from "styled-components";
 import { fetchImage, fetchSearchResult, IFetchSearch } from "../api";
 import Footer from "../Components/Footer";
 import MovieSearchModal from "../Components/MovieSearchModal";
-import Slider, { BoxInfo } from "../Components/MovieSlider";
+import { BoxInfo } from "../Components/Styled-Components/Styles";
 import TVSearchModal from "../Components/TVSeachModal";
 
 const Banner = styled.div`
@@ -139,7 +139,6 @@ function Search() {
 
   useEffect(() => {
     const queryKW = new URLSearchParams(location.search).get("keyword");
-    console.log(queryKW);
     if (queryKW !== null) {
       setQueryKeyword(queryKW);
     }

@@ -11,12 +11,10 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import {
   fetchImage,
-  fetchMovies,
-  fetchSimilarMovie,
-  fetchSingleMovie,
-  IFetchMovies,
+  fetchSimilarTV,
+  fetchSingleTV,
   IMovie,
-  ISimilarMovie,
+  ISimilarTV,
   ITV,
 } from "../api";
 import { fixedState, movieContents, tvContents } from "../atoms";
@@ -102,10 +100,27 @@ const ModalGrid = styled.div`
   top: -70px;
   grid-template-columns: 3fr 1fr;
 `;
+
+const ModalMeta = styled.p`
+  display: flex;
+  gap: 40px;
+  flex-direction: column;
+  justify-content: start;
+`;
+const ContentMeta = styled.div`
+  position: relative;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+`;
+
 const ModalOverview = styled.p`
   padding: 10px;
   margin-left: 20px;
+
   font-size: 18px;
+  /* top: -80px; */
   width: 70%;
   color: ${(props) => props.theme.white.lighter};
 `;
@@ -117,6 +132,19 @@ const PlayerButtons = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+`;
+const AddButton = styled.button`
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  background-color: rgba(0, 0, 0, 0.3);
+  max-width: 30px;
+  max-height: 30px;
+  border-radius: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
 `;
 
 const PlayButton = styled.button`
@@ -146,18 +174,23 @@ const LikeButton = styled.button`
   cursor: pointer;
 `;
 
-const AddButton = styled.button`
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  background-color: rgba(0, 0, 0, 0.3);
-  max-width: 30px;
-  max-height: 30px;
-  border-radius: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
+const Score = styled.span<{ score: number }>`
+  padding: 0.3rem;
+  width: 2.5rem;
+  text-align: center;
+  border-radius: 7px;
+  background-color: ${(props) => {
+    if (props.score < 5) {
+      return "grey";
+    } else if (props.score < 7.3) {
+      return "orange";
+    } else if (props.score < 10) {
+      return "green";
+    }
+  }};
+  color: white;
+  font-size: 30px;
+  font-weight: 600;
 `;
 
 const CloseButton = styled.div`
@@ -172,20 +205,6 @@ const CloseButton = styled.div`
   top: 10px;
   right: 10px;
   cursor: pointer;
-`;
-
-const ModalMeta = styled.p`
-  display: flex;
-  gap: 40px;
-  flex-direction: column;
-  justify-content: start;
-`;
-const ContentMeta = styled.div`
-  position: relative;
-  font-size: 24px;
-  display: flex;
-  align-items: center;
-  gap: 30px;
 `;
 
 const ModalInfo = styled.p`
@@ -219,11 +238,11 @@ const SimilarContentTitle = styled.span`
   position: absolute;
   background-color: linear-gradient(to top, #181818, transparent 50%);
   left: 0px;
+  color: white;
   bottom: 10px;
   margin-left: 10px;
   padding: 10px;
   font-size: 18px;
-  color: white;
 `;
 
 const SimilarContents = styled.div`
@@ -293,47 +312,40 @@ const modalVariants: Variants = {
 interface IContentsModal {
   option?: string;
   contentID: number;
-  // matchedContents: IMovie | "";
+  // matchedContents?: ITV | "";
 }
 
-const MovieContentsModal = ({
+const TVModal = ({
   option,
   contentID,
 }: // matchedContents,
 IContentsModal) => {
   const history = useHistory();
 
-  let [contentId, setContentId] = useState(contentID);
-  // let [matchedContents, setMatchedContents] = useState(matchedContent);
-
-  const movieContents = useQuery<IMovie>(["movie", contentId], () =>
-    fetchSingleMovie(contentId + "")
+  let [tvId, setTVId] = useState(contentID);
+  const tvContents = useQuery<ITV>(["tv", tvId], () =>
+    fetchSingleTV(tvId + "")
   );
 
-  const { data, isLoading } = useQuery<ISimilarMovie>(
-    ["similarMovie", contentId],
-    () => fetchSimilarMovie(contentId + "")
+  const { data, isLoading } = useQuery<ISimilarTV>(["similarTV", tvId], () =>
+    fetchSimilarTV(tvId + "")
   );
 
   const [fixed, setFixed] = useRecoilState(fixedState);
   const onOverlayClick = () => {
     setFixed(false);
-    history.push("/");
+    history.push("/tv");
   };
-
-  const modalClick = (movieId: number) => {
+  const modalClick = (TVId: number) => {
     // toggleModalClicked();
     // setFixed(true);
-    setContentId(movieId);
-
-    // history.push(`/movies/${movieId}`);
+    // history.push(`/tv/${option}/${TVId}`);
+    setTVId(TVId);
   };
 
-  const modalMatch = useRouteMatch<{ movieId: string }>(
-    `/movies/${option}/:movieId`
-  );
-
   const { scrollY } = useViewportScroll();
+
+  const modalMatch = useRouteMatch<{ tvId: string }>(`/tv/${option}/:tvId`);
 
   let MyRef = useRef<HTMLDivElement>(null);
   let ModalElem: HTMLElement | null = null;
@@ -344,7 +356,6 @@ IContentsModal) => {
       disableBodyScroll(ModalElem);
     }
     return () => {
-      console.log("scroll event ends");
       clearAllBodyScrollLocks();
     };
   }, []);
@@ -363,15 +374,15 @@ IContentsModal) => {
               className="Modal"
               variants={modalVariants}
               scrollY={scrollY}
-              layoutId={option + modalMatch.params.movieId}
+              layoutId={option + modalMatch.params.tvId}
               exit="exit"
-              id={option + modalMatch.params.movieId}
+              id={option + modalMatch.params.tvId}
             >
-              {movieContents.data && (
+              {tvContents.data && (
                 <>
                   <ModalCover
                     bgURL={fetchImage(
-                      movieContents.data.backdrop_path,
+                      tvContents.data.backdrop_path,
                       "original"
                     )}
                   >
@@ -396,7 +407,7 @@ IContentsModal) => {
                     </CloseButton>
                   </ModalCover>
 
-                  <ModalTitle>{movieContents.data.title}</ModalTitle>
+                  <ModalTitle>{tvContents.data.name}</ModalTitle>
                   <PlayerButtons>
                     <PlayButton>
                       <svg
@@ -450,53 +461,20 @@ IContentsModal) => {
                     </LikeButton>
                   </PlayerButtons>
                   <ModalGrid>
-                    <ModalOverview>{movieContents.data.overview}</ModalOverview>
+                    <ModalOverview>{tvContents.data.overview}</ModalOverview>
                     <ModalMeta>
                       <ContentMeta>
-                        {movieContents.data.adult ? (
-                          <svg
-                            width="40"
-                            height="40"
-                            id="maturity-rating-978"
-                            viewBox="0 0 100 100"
-                          >
-                            <path
-                              id="FIll---Red"
-                              fill="#C52E37"
-                              d="M88.728 100H11.27C5.043 100 0 94.957 0 88.73V11.274C0 5.048 5.043 0 11.27 0h77.458C94.954 0 100 5.048 100 11.274V88.73c0 6.227-5.046 11.27-11.272 11.27"
-                            ></path>
-                            <path
-                              id="18"
-                              fill="#FFFFFE"
-                              d="M81.473 15.482c.846 0 1.534.687 1.534 1.533v22.099c0 2.036-.283 3.563-.852 4.581-.568 1.02-1.542 1.947-2.918 2.784l-4.581 2.431 4.58 2.156c.777.417 1.424.834 1.93 1.254.51.42.917.931 1.215 1.528.298.6.507 1.32.626 2.157.12.84.182 1.858.182 3.058v23.533c0 .846-.686 1.533-1.533 1.533H43.21a1.536 1.536 0 01-1.535-1.533V59.063c0-2.218.255-3.896.763-5.036.51-1.135 1.538-2.127 3.1-2.961l4.582-2.156-4.581-2.43c-1.376-.838-2.35-1.778-2.92-2.832-.565-1.046-.855-2.563-.855-4.534V17.015c0-.846.688-1.533 1.534-1.533zm-45.008 0V84.13H21.103V34.62h-5.485l7.104-19.136h13.743zm29.913 39.176h-7.89c-.845 0-1.534.686-1.534 1.532v13.737c0 .846.689 1.534 1.535 1.534h7.89c.846 0 1.534-.688 1.534-1.534V56.19c0-.846-.688-1.532-1.535-1.532zm0-26.548h-7.89c-.845 0-1.534.686-1.534 1.532v12.014c0 .846.689 1.533 1.535 1.533h7.89c.846 0 1.534-.687 1.534-1.533V29.642c0-.846-.688-1.532-1.535-1.532z"
-                            ></path>
-                          </svg>
-                        ) : (
-                          <svg
-                            width="40"
-                            height="40"
-                            id="maturity-rating-975"
-                            viewBox="0 0 100 100"
-                          >
-                            <path
-                              id="Fill---Green"
-                              fill="#269251"
-                              d="M88.729 100H11.274C5.051 100 0 94.954 0 88.728V11.274C0 5.048 5.051 0 11.274 0H88.73C94.956 0 100 5.048 100 11.274v77.454C100 94.954 94.956 100 88.729 100"
-                            ></path>
-                            <path
-                              id="Combined-Shape"
-                              fill="#FFFFFE"
-                              d="M68.776 24.428l11.274.001-.004 40.523h13.27V75.1l-24.54-.005V24.428zm-51.928.001l12.335.002L39.86 74.967l.004.131H28.589l-1.196-7.559-8.751.004-1.194 7.552-11.278.003v-.135L16.848 24.43zm36.277-.001v40.524h13.262v10.146h-24.54v-50.67h11.278zM23.015 40.74L20.23 57.987H25.8L23.015 40.74z"
-                            ></path>
-                          </svg>
-                        )}
-                        {movieContents.data.release_date.slice(0, 4)}
+                        <Score score={tvContents.data.vote_average}>
+                          {tvContents.data.vote_average.toString().slice(0, 3)}
+                        </Score>
+
+                        {tvContents.data.first_air_date.slice(0, 4)}
                       </ContentMeta>
 
                       <ModalInfo>
-                        <h3>Liked : {movieContents.data.vote_count}</h3>
+                        <h3>Liked : {tvContents.data.vote_count}</h3>
 
-                        <h3>Popularity : {movieContents.data.popularity}</h3>
+                        <h3>Popularity : {tvContents.data.popularity}</h3>
                       </ModalInfo>
                     </ModalMeta>
                   </ModalGrid>
@@ -504,24 +482,21 @@ IContentsModal) => {
                   <Desc>
                     <DescTitle>Similar Contents</DescTitle>
                     <SimilarContents>
-                      {data?.results.slice(0, 12).map((similarMovie) => {
-                        const url = fetchImage(
-                          similarMovie.backdrop_path,
-                          "w500"
-                        );
+                      {data?.results.slice(0, 12).map((similarTV) => {
+                        const url = fetchImage(similarTV.backdrop_path, "w500");
                         return (
                           <>
                             <SimilarContent
-                              onClick={() => modalClick(similarMovie.id)}
+                              onClick={() => modalClick(similarTV.id)}
                             >
                               <SimilarContentCover bgPhoto={url}>
                                 <SimilarContentTitle>
-                                  {similarMovie.title}
+                                  {similarTV.name}
                                 </SimilarContentTitle>
                               </SimilarContentCover>
 
                               <SimilarContentMeta>
-                                {similarMovie.adult ? (
+                                {similarTV.adult ? (
                                   <svg
                                     width="30"
                                     height="30"
@@ -558,7 +533,7 @@ IContentsModal) => {
                                     ></path>
                                   </svg>
                                 )}
-                                {similarMovie.release_date.slice(0, 4)}
+                                {similarTV.first_air_date.slice(0, 4)}
                                 <AddButton>
                                   <svg
                                     width="24"
@@ -578,7 +553,7 @@ IContentsModal) => {
                                 </AddButton>
                               </SimilarContentMeta>
                               <SimilarContentOverview>
-                                <p>{similarMovie.overview}</p>
+                                <p>{similarTV.overview}</p>
                               </SimilarContentOverview>
                             </SimilarContent>
                           </>
@@ -596,4 +571,4 @@ IContentsModal) => {
   );
 };
 
-export default MovieContentsModal;
+export default TVModal;

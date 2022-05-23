@@ -5,115 +5,16 @@ import { useHistory, useRouteMatch } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import { fetchImage, fetchTV, IFetchTV } from "../api";
-import { fixedState, tvContents } from "../atoms";
-import TVContentsModal from "./TVContentsModal";
-
-export const Carousel = styled.div`
-  /* grid-template-columns: 4% auto 4%; */
-  position: relative;
-  width: 100%;
-  top: -100px;
-`;
-
-// ######### Button ##################################################################################################
-const PrevContent = styled.div`
-  position: absolute;
-  width: 4%;
-  height: 200px;
-  left: 0px;
-  display: flex;
-  z-index: 99;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
-`;
-const NextContent = styled.div`
-  position: absolute;
-  width: 4%;
-  height: 200px;
-  right: 0px;
-  display: flex;
-  z-index: 99;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1));
-`;
-// ###################################################################################################################
-const ContentsRow = styled(motion.div)<{ offSet: string }>`
-  display: grid;
-  width: 100%;
-  grid-template-columns: repeat(${(props) => props.offSet}, 1fr);
-  position: absolute;
-  gap: 5px;
-`;
-
-// const ContentsRow = styled(motion.div)`
-//   display: grid;
-//   width: 100%;
-//   grid-template-columns: repeat(6, 1fr);
-//   position: absolute;
-//   gap: 5px;
-// `;
-
-const Shade = styled(motion.div)`
-  z-index: 10;
-  position: absolute;
-  background-color: #252525;
-  height: 200px;
-  top: 0;
-  left: 0;
-  right: 0;
-  opacity: 0;
-  &:first-child {
-    transform-origin: center left;
-  }
-  &:last-child {
-    transform-origin: center right;
-  }
-`;
-
-export const Box = styled(motion.div)<{ bgPhoto: string }>`
-  z-index: 11;
-  background-color: #252525;
-  background-image: url(${(props) => props.bgPhoto});
-  background-size: cover;
-  background-position: center center;
-  position: relative;
-  height: 200px;
-  font-size: 66px;
-  &:first-child {
-    transform-origin: center left;
-  }
-  &:last-child {
-    transform-origin: center right;
-  }
-`;
-
-const SliderTitle = styled.div`
-  margin-left: 20px;
-  padding: 10px;
-  font-size: 36px;
-`;
-
-export const BoxInfo = styled(motion.div)`
-  position: relative;
-  /* position: absolute; */
-
-  /* Box 컴포넌트의 높이를 가져오자 */
-  top: 150px;
-  /* background-color: ${(props) => props.theme.black.lighter};*/
-  background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8) 70.71%);
-  opacity: 0;
-  height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: end;
-  width: 100%;
-  h4 {
-    text-align: center;
-    font-size: 18px;
-  }
-`;
+import { fixedState } from "../atoms";
+import SliderBox from "./SliderBox";
+import {
+  NextContent,
+  ContentsRow,
+  PrevContent,
+  SliderTitle,
+  Carousel,
+} from "./Styled-Components/Styles";
+import TVModal from "./TVModal";
 
 const Wrapper = styled.div`
   display: grid;
@@ -269,7 +170,7 @@ function TVSlider({ option }: ISlider) {
             exit="exit"
             transition={{ type: "tween", duration: 1 }}
             key={index}
-            offSet={offset + ""}
+            scrolloffset={offset + ""}
           >
             {data?.results
               .slice(1)
@@ -277,30 +178,12 @@ function TVSlider({ option }: ISlider) {
               .map((movie) => {
                 const url = fetchImage(movie.backdrop_path, "w500");
                 return (
-                  <>
-                    <Box
-                      key={option + movie.id}
-                      id={option + String(movie.id)}
-                      bgPhoto={url}
-                      onClick={() => modalClick(movie.id)}
-                      whileHover="hover"
-                      initial="normal"
-                      exit="end"
-                      variants={boxVariants}
-                      transition={{ type: "tween" }}
-                    >
-                      <Shade
-                        // bgPhoto={fetchImage(movie.backdrop_path, "w500")}
-                        initial={{ opacity: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        layoutId={option + String(movie.id)}
-                      />
-                      <BoxInfo variants={infoVariants}>
-                        <h4>{movie.name}</h4>
-                      </BoxInfo>
-                    </Box>
-                  </>
+                  <SliderBox
+                    option={option}
+                    url={url}
+                    movie={movie}
+                    isMovie={false}
+                  />
                 );
               })}
           </ContentsRow>
@@ -316,7 +199,7 @@ function TVSlider({ option }: ISlider) {
         </AnimatePresence>
       </Carousel>
       {matchedTV && (
-        <TVContentsModal
+        <TVModal
           contentID={matchedTV.id}
           option={option}
           // matchedContents={matchedTV}

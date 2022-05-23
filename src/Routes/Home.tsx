@@ -85,9 +85,9 @@ function Home() {
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
           <SliderContainer>
-            <MovieSlider option="now_playing" />
-            <MovieSlider option="top_rated" />
-            <MovieSlider option="upcoming" />
+            <MovieSlider key={"now_playing slider"} option="now_playing" />
+            <MovieSlider key={"top_rated slider"} option="top_rated" />
+            <MovieSlider key={"upcoming slider"} option="upcoming" />
           </SliderContainer>
         </>
       )}

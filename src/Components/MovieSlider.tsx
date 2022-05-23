@@ -4,151 +4,22 @@ import { useQuery } from "react-query";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import styled from "styled-components";
-import {
-  fetchImage,
-  fetchMovies,
-  fetchTV,
-  IFetchMovies,
-  IFetchTV,
-} from "../api";
+import { fetchImage, fetchMovies, IFetchMovies } from "../api";
 import { fixedState } from "../atoms";
-import MovieContentsModal from "./MovieContentsModal";
-
-const Carousel = styled.div`
-  /* grid-template-columns: 4% auto 4%; */
-  position: relative;
-  width: 100%;
-  top: -100px;
-`;
-
-// ######### Button ##################################################################################################
-const PrevContent = styled.div`
-  position: absolute;
-  width: 4%;
-  height: 200px;
-  left: 0px;
-  display: flex;
-  z-index: 99;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
-`;
-const NextContent = styled.div`
-  position: absolute;
-  width: 4%;
-  height: 200px;
-  right: 0px;
-  display: flex;
-  z-index: 99;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1));
-`;
-// ###################################################################################################################
-const ContentsRow = styled(motion.div)<{ offSet: string }>`
-  display: grid;
-  width: 100%;
-  grid-template-columns: repeat(${(props) => props.offSet}, 1fr);
-  position: absolute;
-  gap: 5px;
-`;
-
-// const ContentsRow = styled(motion.div)`
-//   display: grid;
-//   width: 100%;
-//   grid-template-columns: repeat(6, 1fr);
-//   position: absolute;
-//   gap: 5px;
-// `;
-
-const Shade = styled(motion.div)`
-  z-index: 10;
-  position: absolute;
-  background-color: #252525;
-  height: 200px;
-  top: 0;
-  left: 0;
-  right: 0;
-  opacity: 0;
-  &:first-child {
-    transform-origin: center left;
-  }
-  &:last-child {
-    transform-origin: center right;
-  }
-`;
-
-const Box = styled(motion.div)<{ bgPhoto: string }>`
-  z-index: 11;
-  background-color: #252525;
-  background-image: url(${(props) => props.bgPhoto});
-  background-size: cover;
-  background-position: center center;
-  position: relative;
-  height: 200px;
-  font-size: 66px;
-  &:first-child {
-    transform-origin: center left;
-  }
-  &:last-child {
-    transform-origin: center right;
-  }
-`;
-
-const SliderTitle = styled.div`
-  margin-left: 20px;
-  padding: 10px;
-  font-size: 36px;
-`;
-
-export const BoxInfo = styled(motion.div)`
-  position: relative;
-  /* position: absolute; */
-
-  /* Box 컴포넌트의 높이를 가져오자 */
-  top: 150px;
-  /* background-color: ${(props) => props.theme.black.lighter};*/
-  background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8) 70.71%);
-  opacity: 0;
-  height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: end;
-  width: 100%;
-  h4 {
-    text-align: center;
-    font-size: 18px;
-  }
-`;
+import MovieModal from "./MovieModal";
+import SliderBox from "./SliderBox";
+import {
+  Carousel,
+  NextContent,
+  PrevContent,
+  SliderTitle,
+  ContentsRow,
+} from "./Styled-Components/Styles";
 
 const Wrapper = styled.div`
   display: grid;
   grid-template-rows: 150px 300px;
 `;
-
-const boxVariants: Variants = {
-  normal: {
-    scale: 1,
-  },
-  hover: {
-    zIndex: 100,
-    scale: 1.5,
-    borderRadius: 5,
-    y: -50,
-    // borderRadius: 10,
-    transition: {
-      delay: 0.5,
-      duration: 0.3,
-      type: "tween",
-    },
-  },
-  end: {
-    transition: {
-      scale: 10.2,
-      duration: 0.5,
-    },
-  },
-};
 
 // decrease 용 애니메이션 추가로 설정하기
 const rowVariants: Variants = {
@@ -161,11 +32,6 @@ const rowVariants: Variants = {
   exit: (isBack: boolean) => ({
     x: isBack ? window.innerWidth + 5 : -window.innerWidth - 5,
   }),
-};
-const infoVariants: Variants = {
-  hover: {
-    opacity: 1,
-  },
 };
 
 interface ISlider {
@@ -274,8 +140,9 @@ function MovieSlider({ option }: ISlider) {
             animate="visible"
             exit="exit"
             transition={{ type: "tween", duration: 1 }}
-            key={index}
-            offSet={offset + ""}
+            key={option + index}
+            id={option + index}
+            scrolloffset={offset + ""}
           >
             {data?.results
               .slice(1)
@@ -283,30 +150,13 @@ function MovieSlider({ option }: ISlider) {
               .map((movie) => {
                 const url = fetchImage(movie.backdrop_path, "w500");
                 return (
-                  <>
-                    <Box
-                      key={option + movie.id}
-                      id={option + String(movie.id)}
-                      bgPhoto={url}
-                      onClick={() => modalClick(movie.id)}
-                      whileHover="hover"
-                      initial="normal"
-                      exit="end"
-                      variants={boxVariants}
-                      transition={{ type: "tween" }}
-                    >
-                      <Shade
-                        // bgPhoto={fetchImage(movie.backdrop_path, "w500")}
-                        initial={{ opacity: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        layoutId={option + String(movie.id)}
-                      />
-                      <BoxInfo variants={infoVariants}>
-                        <h4>{movie.title}</h4>
-                      </BoxInfo>
-                    </Box>
-                  </>
+                  <SliderBox
+                    key={option + movie.id}
+                    option={option}
+                    url={url}
+                    movie={movie}
+                    isMovie={true}
+                  />
                 );
               })}
           </ContentsRow>
@@ -322,7 +172,7 @@ function MovieSlider({ option }: ISlider) {
         </AnimatePresence>
       </Carousel>
       {matchedMovie && (
-        <MovieContentsModal
+        <MovieModal
           contentID={matchedMovie.id}
           option={option}
           // matchedContents={matchedMovie}

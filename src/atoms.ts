@@ -1,4 +1,3 @@
-import { type } from "os";
 import { atom } from "recoil";
 import { IMovie, ITV } from "./api";
 

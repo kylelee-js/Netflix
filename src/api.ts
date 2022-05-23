@@ -18,6 +18,7 @@ export interface IMovie {
   poster_path: string;
   release_date: string;
   title: string;
+  name: string;
   video: boolean;
   vote_average: number;
   vote_count: number;
@@ -144,6 +145,7 @@ export interface ITV {
   genre_ids: number[];
   id: number;
   name: string;
+  title: string;
   origin_country: string[];
   original_language: string;
   original_name: string;
