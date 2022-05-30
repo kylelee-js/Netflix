@@ -5,28 +5,31 @@ import {
   useViewportScroll,
   Variants,
 } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { ContextType, forwardRef, useEffect, useRef, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import {
   fetchImage,
+  fetchMovies,
   fetchSimilarMovie,
   fetchSingleMovie,
+  IFetchMovies,
   IMovie,
   ISimilarMovie,
-} from "../api";
-import { fixedState, movieContents, tvContents } from "../atoms";
+  ITV,
+} from "../../api/api";
+import { fixedState, movieContents, tvContents } from "../../Recoil/atoms";
 import { disableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock";
 import { useQuery } from "react-query";
 
 const Wrapper = styled.div``;
-// const BackDrop = styled.div`
-//   z-index: 999;
-//   position: relative;
-//   height: 100%;
-//   width: 100%;
-// `;
+const BackDrop = styled.div`
+  z-index: 999;
+  position: relative;
+  height: 100%;
+  width: 100%;
+`;
 
 const Overlay = styled(motion.div)`
   z-index: 1000;
@@ -293,7 +296,7 @@ interface IContentsModal {
   // matchedContents: IMovie | "";
 }
 
-const MovieContentsModal = ({
+const MovieSearchModal = ({
   option,
   contentID,
 }: // matchedContents,
@@ -315,7 +318,7 @@ IContentsModal) => {
   const [fixed, setFixed] = useRecoilState(fixedState);
   const onOverlayClick = () => {
     setFixed(false);
-    history.push("/");
+    history.goBack();
   };
 
   const modalClick = (movieId: number) => {
@@ -326,9 +329,7 @@ IContentsModal) => {
     // history.push(`/movies/${movieId}`);
   };
 
-  const modalMatch = useRouteMatch<{ movieId: string }>(
-    `/movies/${option}/:movieId`
-  );
+  const modalMatch = useRouteMatch<{ movieId: string }>(`/search/:movieId`);
 
   const { scrollY } = useViewportScroll();
 
@@ -341,6 +342,7 @@ IContentsModal) => {
       disableBodyScroll(ModalElem);
     }
     return () => {
+      console.log("scroll event ends");
       clearAllBodyScrollLocks();
     };
   }, []);
@@ -359,9 +361,9 @@ IContentsModal) => {
               className="Modal"
               variants={modalVariants}
               scrollY={scrollY}
-              layoutId={option + modalMatch.params.movieId}
+              layoutId={modalMatch.params.movieId}
               exit="exit"
-              id={option + modalMatch.params.movieId}
+              id={modalMatch.params.movieId}
             >
               {movieContents.data && (
                 <>
@@ -592,4 +594,4 @@ IContentsModal) => {
   );
 };
 
-export default MovieContentsModal;
+export default MovieSearchModal;

@@ -2,11 +2,11 @@ import { useEffect } from "react";
 import { useQuery } from "react-query";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
-import { fetchImage, fetchMovies, IFetchMovies } from "../api";
-import { fixedState, searchOpenState } from "../atoms";
-import Footer from "../Components/Footer";
-import MovieSlider from "../Components/MovieSlider";
-import Slider from "../Components/MovieSlider";
+import { fetchImage, fetchMovies, IFetchMovies } from "../api/api";
+import { fixedState, searchOpenState } from "../Recoil/atoms";
+import Footer from "../Components/Footer/Footer";
+import MovieSlider from "../Components/Movie/MovieSlider";
+import Slider from "../Components/Movie/MovieSlider";
 
 const Wrapper = styled.div`
   background-color: black;

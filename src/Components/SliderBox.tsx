@@ -2,8 +2,8 @@ import { motion, Variants } from "framer-motion";
 import { SyntheticEvent, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
-import { IMovie, ITV } from "../api";
-import { fixedState } from "../atoms";
+import { IMovie, ITV } from "../api/api";
+import { fixedState } from "../Recoil/atoms";
 import { Box, BoxImage, BoxInfo, Shade } from "./Styled-Components/Styles";
 
 const boxVariants: Variants = {

@@ -4,17 +4,17 @@ import { useQuery } from "react-query";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import styled from "styled-components";
-import { fetchImage, fetchMovies, IFetchMovies } from "../api";
-import { fixedState } from "../atoms";
+import { fetchImage, fetchMovies, IFetchMovies } from "../../api/api";
+import { fixedState } from "../../Recoil/atoms";
 import MovieModal from "./MovieModal";
-import SliderBox from "./SliderBox";
+import SliderBox from "../SliderBox";
 import {
   Carousel,
   NextContent,
   PrevContent,
   SliderTitle,
   ContentsRow,
-} from "./Styled-Components/Styles";
+} from "../Styled-Components/Styles";
 
 const Wrapper = styled.div`
   display: grid;

@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
-import { fetchImage, fetchSearchResult, IFetchSearch } from "../api";
-import Footer from "../Components/Footer";
-import MovieSearchModal from "../Components/MovieSearchModal";
+import { fetchImage, fetchSearchResult, IFetchSearch } from "../api/api";
+import Footer from "../Components/Footer/Footer";
+import MovieSearchModal from "../Components/Search/MovieSearchModal";
 import { BoxInfo } from "../Components/Styled-Components/Styles";
-import TVSearchModal from "../Components/TVSeachModal";
+import TVSearchModal from "../Components/Search/TVSeachModal";
 
 const Banner = styled.div`
   width: 100%;

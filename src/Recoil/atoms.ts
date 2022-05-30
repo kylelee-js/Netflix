@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import { IMovie, ITV } from "./api";
+import { IMovie, ITV } from "../api/api";
 
 export const searchOpenState = atom({
   key: "searchOpenState",

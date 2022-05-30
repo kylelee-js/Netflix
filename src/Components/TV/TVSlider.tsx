@@ -4,16 +4,16 @@ import { useQuery } from "react-query";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import styled from "styled-components";
-import { fetchImage, fetchTV, IFetchTV } from "../api";
-import { fixedState } from "../atoms";
-import SliderBox from "./SliderBox";
+import { fetchImage, fetchTV, IFetchTV } from "../../api/api";
+import { fixedState } from "../../Recoil/atoms";
+import SliderBox from "../SliderBox";
 import {
   NextContent,
   ContentsRow,
   PrevContent,
   SliderTitle,
   Carousel,
-} from "./Styled-Components/Styles";
+} from "../Styled-Components/Styles";
 import TVModal from "./TVModal";
 
 const Wrapper = styled.div`

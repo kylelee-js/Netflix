@@ -16,8 +16,8 @@ import {
   IMovie,
   ISimilarTV,
   ITV,
-} from "../api";
-import { fixedState, movieContents, tvContents } from "../atoms";
+} from "../../api/api";
+import { fixedState, movieContents, tvContents } from "../../Recoil/atoms";
 import { disableBodyScroll, clearAllBodyScrollLocks } from "body-scroll-lock";
 import { useQuery } from "react-query";
 
@@ -315,7 +315,7 @@ interface IContentsModal {
   // matchedContents?: ITV | "";
 }
 
-const TVModal = ({
+const TVSearchModal = ({
   option,
   contentID,
 }: // matchedContents,
@@ -334,7 +334,7 @@ IContentsModal) => {
   const [fixed, setFixed] = useRecoilState(fixedState);
   const onOverlayClick = () => {
     setFixed(false);
-    history.push("/tv");
+    history.goBack();
   };
   const modalClick = (TVId: number) => {
     // toggleModalClicked();
@@ -345,7 +345,7 @@ IContentsModal) => {
 
   const { scrollY } = useViewportScroll();
 
-  const modalMatch = useRouteMatch<{ tvId: string }>(`/tv/${option}/:tvId`);
+  const modalMatch = useRouteMatch<{ tvId: string }>(`/search/:tvId`);
 
   let MyRef = useRef<HTMLDivElement>(null);
   let ModalElem: HTMLElement | null = null;
@@ -374,9 +374,9 @@ IContentsModal) => {
               className="Modal"
               variants={modalVariants}
               scrollY={scrollY}
-              layoutId={option + modalMatch.params.tvId}
+              layoutId={modalMatch.params.tvId}
               exit="exit"
-              id={option + modalMatch.params.tvId}
+              id={modalMatch.params.tvId}
             >
               {tvContents.data && (
                 <>
@@ -571,4 +571,4 @@ IContentsModal) => {
   );
 };
 
-export default TVModal;
+export default TVSearchModal;

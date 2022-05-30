@@ -2,10 +2,10 @@ import { useEffect } from "react";
 import { useQuery } from "react-query";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
-import { fetchImage, fetchMovies, fetchTV, IFetchTV } from "../api";
-import { fixedState, searchOpenState } from "../atoms";
-import Footer from "../Components/Footer";
-import TVSlider from "../Components/TVSlider";
+import { fetchImage, fetchMovies, fetchTV, IFetchTV } from "../api/api";
+import { fixedState, searchOpenState } from "../Recoil/atoms";
+import Footer from "../Components/Footer/Footer";
+import TVSlider from "../Components/TV/TVSlider";
 
 const Wrapper = styled.div`
   background-color: black;
