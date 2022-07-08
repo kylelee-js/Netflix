@@ -1,6 +1,6 @@
 ## [Netflix 클론 코딩](https://kylelee-js.github.io/Netflix/)
 
-Nomad Coder's React 마스터클래스를 스스로 완성하면서 넷플릭스의 UI와 인터렉션을 구현해보는 프로젝트.
+
 
 ### Stack
 
